@@ -113,6 +113,13 @@ class EOReaderTest {
   }
 
   @Test
+  void testGetNegativeLengthString() {
+    EOReader reader = createReader("foo");
+    assertThatThrownBy(() -> reader.getFixedEncodedString(-1))
+        .isExactlyInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
   void testGetEncodedString() {
     EOReader reader = createReader("!;a-^H s^3a:)");
     assertThat(reader.getEncodedString()).isEqualTo("Hello, World!");
@@ -134,6 +141,13 @@ class EOReaderTest {
 
     reader.nextChunk();
     assertThat(reader.getEncodedString()).isEqualTo("World!");
+  }
+
+  @Test
+  void testGetNegativeLengthEncodedString() {
+    EOReader reader = createReader("^0g");
+    assertThatThrownBy(() -> reader.getFixedEncodedString(-1))
+        .isExactlyInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

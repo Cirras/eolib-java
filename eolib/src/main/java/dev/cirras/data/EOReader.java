@@ -79,6 +79,9 @@ public final class EOReader {
    * @return a string
    */
   public String getFixedString(int length) {
+    if (length < 0) {
+      throw new IllegalArgumentException("Negative length");
+    }
     byte[] bytes = readBytes(length);
     return new String(bytes, Charset.forName("windows-1252"));
   }
@@ -100,6 +103,9 @@ public final class EOReader {
    * @return a decoded string
    */
   public String getFixedEncodedString(int length) {
+    if (length < 0) {
+      throw new IllegalArgumentException("Negative length");
+    }
     byte[] bytes = readBytes(length);
     StringEncodingUtils.decodeString(bytes);
     return new String(bytes, Charset.forName("windows-1252"));

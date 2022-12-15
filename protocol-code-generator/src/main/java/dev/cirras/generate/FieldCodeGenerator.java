@@ -432,7 +432,11 @@ class FieldCodeGenerator {
     }
 
     if (type instanceof BasicType) {
-      String readBasicType = getReadStatementForBasicType((BasicType) type, getLengthExpression());
+      String lengthExpression = getLengthExpression();
+      if (lengthExpression != null && lengthOffset != 0) {
+        lengthExpression = "java.lang.Math.max(" + lengthExpression + ", 0)";
+      }
+      String readBasicType = getReadStatementForBasicType((BasicType) type, lengthExpression);
       if (realType instanceof EnumType) {
         EnumType enumType = (EnumType) realType;
         TypeName enumTypeName = ClassName.get(enumType.getPackageName(), enumType.getName());
