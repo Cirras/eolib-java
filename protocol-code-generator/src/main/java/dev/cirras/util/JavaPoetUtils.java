@@ -24,8 +24,4 @@ public final class JavaPoetUtils {
   public static TypeName getSerializationErrorTypeName() {
     return ClassName.get("dev.cirras.protocol", "SerializationError");
   }
-
-  public static TypeName getDeserializationErrorTypeName() {
-    return ClassName.get("dev.cirras.protocol", "DeserializationError");
-  }
 }
