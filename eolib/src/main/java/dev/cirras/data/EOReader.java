@@ -76,7 +76,9 @@ public final class EOReader {
   /**
    * Reads a string with a fixed length from the input data.
    *
-   * @return a string
+   * @param length the length of the string
+   * @return a decoded string
+   * @throws IllegalArgumentException if the length is negative
    */
   public String getFixedString(int length) {
     if (length < 0) {
@@ -100,7 +102,9 @@ public final class EOReader {
   /**
    * Reads an encoded string with a fixed length from the input data.
    *
+   * @param length the length of the string
    * @return a decoded string
+   * @throws IllegalArgumentException if the length is negative
    */
   public String getFixedEncodedString(int length) {
     if (length < 0) {
