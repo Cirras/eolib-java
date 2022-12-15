@@ -201,6 +201,8 @@ final class ObjectCodeGenerator {
       ClassName caseDataTypeName = data.getTypeName().nestedClass(caseDataName);
 
       Context caseContext = new Context(context);
+      caseContext.getAccessibleFields().clear();
+
       ObjectCodeGenerator objectCodeGenerator =
           new ObjectCodeGenerator(caseDataTypeName, typeFactory, caseContext);
       protocolCase.getInstructions().forEach(objectCodeGenerator::generateInstruction);
