@@ -4,14 +4,9 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import dev.cirras.generate.type.EnumType;
-import dev.cirras.generate.type.IntegerType;
 import dev.cirras.generate.type.Type;
 import dev.cirras.generate.type.TypeFactory;
 import dev.cirras.util.JavaPoetUtils;
-import dev.cirras.util.NameUtils;
-import dev.cirras.util.NumberUtils;
-import dev.cirras.util.StringUtils;
 import dev.cirras.xml.ProtocolArray;
 import dev.cirras.xml.ProtocolBreak;
 import dev.cirras.xml.ProtocolCase;
@@ -20,11 +15,8 @@ import dev.cirras.xml.ProtocolComment;
 import dev.cirras.xml.ProtocolDummy;
 import dev.cirras.xml.ProtocolField;
 import dev.cirras.xml.ProtocolSwitch;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.lang.model.element.Modifier;
 
 final class ObjectCodeGenerator {
@@ -36,7 +28,7 @@ final class ObjectCodeGenerator {
     this(typeName, typeFactory, new Context());
   }
 
-  private ObjectCodeGenerator(ClassName typeName, TypeFactory typeFactory, Context context) {
+  ObjectCodeGenerator(ClassName typeName, TypeFactory typeFactory, Context context) {
     this.typeFactory = typeFactory;
     this.context = context;
     this.data = new Data(typeName);
@@ -140,150 +132,26 @@ final class ObjectCodeGenerator {
   }
 
   private void generateSwitch(ProtocolSwitch protocolSwitch) {
-    FieldData fieldData = context.getAccessibleFields().get(protocolSwitch.getField());
-    if (fieldData == null) {
-      throw new CodeGenerationError(
-          String.format("Referenced %s field is not accessible.", protocolSwitch.getField()));
-    }
-
-    String interfaceName = NameUtils.snakeCaseToPascalCase(protocolSwitch.getField()) + "Data";
-    ClassName interfaceTypeName = data.getTypeName().nestedClass(interfaceName);
-    String caseDataFieldName = fieldData.getJavaName() + "Data";
-
-    data.getTypeSpec()
-        .addType(TypeSpec.interfaceBuilder(interfaceName).addModifiers(Modifier.PUBLIC).build())
-        .addField(interfaceTypeName, caseDataFieldName)
-        .addMethod(
-            MethodSpec.methodBuilder("get" + StringUtils.capitalize(caseDataFieldName))
-                .addModifiers(Modifier.PUBLIC)
-                .returns(interfaceTypeName)
-                .addStatement("return this.$L", caseDataFieldName)
-                .build())
-        .addMethod(
-            MethodSpec.methodBuilder("set" + StringUtils.capitalize(caseDataFieldName))
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(interfaceTypeName, caseDataFieldName)
-                .addStatement("this.$1L = $1L", caseDataFieldName)
-                .build());
-
-    data.getSerialize().beginControlFlow("switch (data.$L)", fieldData.getJavaName());
-    data.getDeserialize().beginControlFlow("switch (data.$L)", fieldData.getJavaName());
+    SwitchCodeGenerator switchCodeGenerator =
+        new SwitchCodeGenerator(protocolSwitch.getField(), typeFactory, context, data);
+    switchCodeGenerator.generateCaseDataInterface();
+    switchCodeGenerator.generateCaseDataField();
+    switchCodeGenerator.generateSwitchStart();
 
     boolean reachedOptionalField = context.isReachedOptionalField();
     boolean reachedDummy = context.isReachedDummy();
 
     for (ProtocolCase protocolCase : protocolSwitch.getCases()) {
-      String caseDataName = interfaceName;
-      if (protocolCase.isDefault()) {
-        caseDataName += "Default";
-        data.getSerialize().add("default:\n").indent();
-        data.getDeserialize().add("default:\n").indent();
-      } else {
-        String caseValue = protocolCase.getValue();
-        caseDataName += caseValue;
-
-        String caseValueExpression;
-        Type fieldType = fieldData.getType();
-        if (fieldType instanceof IntegerType) {
-          if (!NumberUtils.isInteger(caseValue)) {
-            throw new CodeGenerationError(
-                String.format("\"%s\" is not a valid integer value.", protocolSwitch.getField()));
-          }
-          caseValueExpression = caseValue;
-        } else if (fieldType instanceof EnumType) {
-          EnumType enumType = (EnumType) fieldType;
-          Optional<EnumType.EnumValue> enumValue = enumType.getEnumValueByProtocolName(caseValue);
-          caseValueExpression =
-              enumValue
-                  .map(EnumType.EnumValue::getJavaName)
-                  .orElseThrow(
-                      () ->
-                          new CodeGenerationError(
-                              String.format(
-                                  "\"%s\" is not a valid value for enum type %s",
-                                  caseValue, enumType.getName())));
-        } else {
-          throw new CodeGenerationError(
-              String.format(
-                  "%s field referenced by switch must be a numeric or enumeration type.",
-                  protocolSwitch.getField()));
-        }
-
-        data.getSerialize().add("case $L:\n", caseValueExpression).indent();
-        data.getDeserialize().add("case $L:\n", caseValueExpression).indent();
-      }
-
-      ClassName caseDataTypeName = data.getTypeName().nestedClass(caseDataName);
-
-      Context caseContext = new Context(context);
-      caseContext.getAccessibleFields().clear();
-
-      ObjectCodeGenerator objectCodeGenerator =
-          new ObjectCodeGenerator(caseDataTypeName, typeFactory, caseContext);
-
-      List<Object> instructions;
-      if (caseContext.isChunkedReadingEnabled()) {
-        caseContext.setChunkedReadingEnabled(false);
-        // Synthesize a <chunked> element
-        ProtocolChunked chunked =
-            new ProtocolChunked() {
-              @Override
-              public List<Object> getInstructions() {
-                return protocolCase.getInstructions();
-              }
-            };
-        instructions = Collections.singletonList(chunked);
-      } else {
-        instructions = protocolCase.getInstructions();
-      }
-
-      instructions.forEach(objectCodeGenerator::generateInstruction);
+      Context caseContext = switchCodeGenerator.generateCase(protocolCase);
 
       reachedOptionalField = reachedOptionalField || caseContext.isReachedOptionalField();
       reachedDummy = reachedDummy || caseContext.isReachedDummy();
-
-      TypeSpec.Builder caseDataTypeSpec =
-          objectCodeGenerator
-              .getTypeSpec()
-              .addModifiers(Modifier.STATIC, Modifier.FINAL)
-              .addSuperinterface(interfaceTypeName);
-
-      protocolCase
-          .getComment()
-          .map(ProtocolComment::getText)
-          .ifPresent(caseDataTypeSpec::addJavadoc);
-
-      data.getTypeSpec().addType(caseDataTypeSpec.build());
-
-      data.getSerialize()
-          .beginControlFlow(
-              "if (!data.$L.getClass().equals($T.class))", caseDataFieldName, caseDataTypeName)
-          .addStatement(
-              "throw new $1T(String.format("
-                  + "\"Expected $2L to be type $3T for $4L %s . (Got %s)\""
-                  + ", data.$4L, data.$2L.getClass().getName()))",
-              JavaPoetUtils.getSerializationErrorTypeName(),
-              caseDataFieldName,
-              caseDataTypeName,
-              fieldData.getJavaName())
-          .endControlFlow()
-          .addStatement(
-              "$1T.serialize(writer, ($1T) data.$2L)", caseDataTypeName, caseDataFieldName)
-          .addStatement("break");
-
-      data.getDeserialize()
-          .addStatement("data.$L = $T.deserialize(reader)", caseDataFieldName, caseDataTypeName)
-          .addStatement("break");
-
-      data.getSerialize().unindent();
-      data.getDeserialize().unindent();
     }
 
     context.setReachedOptionalField(reachedOptionalField);
     context.setReachedDummy(reachedDummy);
 
-    data.getSerialize().endControlFlow();
-    data.getDeserialize().endControlFlow();
+    switchCodeGenerator.generateSwitchEnd();
   }
 
   private void generateChunked(ProtocolChunked protocolChunked) {
@@ -379,14 +247,14 @@ final class ObjectCodeGenerator {
     private boolean reachedDummy;
     private final Map<String, FieldData> accessibleFields;
 
-    private Context() {
+    Context() {
       setChunkedReadingEnabled(false);
       setReachedOptionalField(false);
       setReachedDummy(false);
       accessibleFields = new HashMap<>();
     }
 
-    private Context(Context other) {
+    Context(Context other) {
       setChunkedReadingEnabled(other.isChunkedReadingEnabled());
       setReachedOptionalField(other.isReachedOptionalField());
       setReachedDummy(other.isReachedDummy());
