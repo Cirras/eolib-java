@@ -436,7 +436,8 @@ class FieldCodeGenerator {
       if (lengthExpression != null && lengthOffset != 0) {
         lengthExpression = "java.lang.Math.max(" + lengthExpression + ", 0)";
       }
-      String readBasicType = getReadStatementForBasicType((BasicType) type, lengthExpression);
+      String readBasicType =
+          getReadStatementForBasicType((BasicType) type, lengthExpression, padded);
       if (realType instanceof EnumType) {
         EnumType enumType = (EnumType) realType;
         TypeName enumTypeName = ClassName.get(enumType.getPackageName(), enumType.getName());
@@ -461,7 +462,8 @@ class FieldCodeGenerator {
     return statement.add(";\n$]").build();
   }
 
-  private static String getReadStatementForBasicType(BasicType type, String lengthExpression) {
+  private static String getReadStatementForBasicType(
+      BasicType type, String lengthExpression, boolean padded) {
     switch (type.getName()) {
       case "byte":
         return "reader.getByte()";
@@ -478,7 +480,7 @@ class FieldCodeGenerator {
           if (lengthExpression == null) {
             return "reader.getString()";
           } else {
-            return String.format("reader.getFixedString(%s)", lengthExpression);
+            return String.format("reader.getFixedString(%s, %s)", lengthExpression, padded);
           }
         }
       case "encoded_string":
@@ -486,7 +488,7 @@ class FieldCodeGenerator {
           if (lengthExpression == null) {
             return "reader.getEncodedString()";
           } else {
-            return String.format("reader.getFixedEncodedString(%s)", lengthExpression);
+            return String.format("reader.getFixedEncodedString(%s, %s)", lengthExpression, padded);
           }
         }
       default:

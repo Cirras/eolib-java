@@ -102,6 +102,13 @@ class EOReaderTest {
   }
 
   @Test
+  void testPaddedGetFixedString() {
+    EOReader reader = createReader("fooÿbarÿÿÿ");
+    assertThat(reader.getFixedString(4, true)).isEqualTo("foo");
+    assertThat(reader.getFixedString(6, true)).isEqualTo("bar");
+  }
+
+  @Test
   void testChunkedGetString() {
     EOReader reader = createReader("Hello,ÿWorld!");
     reader.setChunkedReadingMode(true);
@@ -115,7 +122,7 @@ class EOReaderTest {
   @Test
   void testGetNegativeLengthString() {
     EOReader reader = createReader("foo");
-    assertThatThrownBy(() -> reader.getFixedEncodedString(-1))
+    assertThatThrownBy(() -> reader.getFixedString(-1))
         .isExactlyInstanceOf(IllegalArgumentException.class);
   }
 
@@ -126,10 +133,18 @@ class EOReaderTest {
   }
 
   @Test
-  void testFixedEncodedString() {
+  void testFixedGetEncodedString() {
     EOReader reader = createReader("^0g[>k");
     assertThat(reader.getFixedEncodedString(3)).isEqualTo("foo");
     assertThat(reader.getFixedEncodedString(3)).isEqualTo("bar");
+  }
+
+  @Test
+  void testPaddedGetFixedEncodedString() {
+    EOReader reader = createReader("ÿ0^9ÿÿÿ-l=S>k");
+    assertThat(reader.getFixedEncodedString(4, true)).isEqualTo("foo");
+    assertThat(reader.getFixedEncodedString(6, true)).isEqualTo("bar");
+    assertThat(reader.getFixedEncodedString(3, true)).isEqualTo("baz");
   }
 
   @Test

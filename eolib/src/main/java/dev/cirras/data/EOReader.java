@@ -81,10 +81,25 @@ public final class EOReader {
    * @throws IllegalArgumentException if the length is negative
    */
   public String getFixedString(int length) {
+    return getFixedString(length, false);
+  }
+
+  /**
+   * Reads a string with a fixed length from the input data.
+   *
+   * @param length the length of the string
+   * @param padded true if the string is padded with trailing <code>0xFF</code> bytes
+   * @return a decoded string
+   * @throws IllegalArgumentException if the length is negative
+   */
+  public String getFixedString(int length, boolean padded) {
     if (length < 0) {
       throw new IllegalArgumentException("Negative length");
     }
     byte[] bytes = readBytes(length);
+    if (padded) {
+      bytes = removePadding(bytes);
+    }
     return new String(bytes, Charset.forName("windows-1252"));
   }
 
@@ -107,11 +122,26 @@ public final class EOReader {
    * @throws IllegalArgumentException if the length is negative
    */
   public String getFixedEncodedString(int length) {
+    return getFixedEncodedString(length, false);
+  }
+
+  /**
+   * Reads an encoded string with a fixed length from the input data.
+   *
+   * @param length the length of the string
+   * @param padded true if the string is padded with trailing <code>0xFF</code> bytes
+   * @return a decoded string
+   * @throws IllegalArgumentException if the length is negative
+   */
+  public String getFixedEncodedString(int length, boolean padded) {
     if (length < 0) {
       throw new IllegalArgumentException("Negative length");
     }
     byte[] bytes = readBytes(length);
     StringEncodingUtils.decodeString(bytes);
+    if (padded) {
+      bytes = removePadding(bytes);
+    }
     return new String(bytes, Charset.forName("windows-1252"));
   }
 
@@ -199,6 +229,17 @@ public final class EOReader {
     position += length;
 
     return result;
+  }
+
+  private static byte[] removePadding(byte[] bytes) {
+    for (int i = 0; i < bytes.length; ++i) {
+      if (bytes[i] == (byte) 0xFF) {
+        byte[] result = new byte[i];
+        System.arraycopy(bytes, 0, result, 0, i);
+        return result;
+      }
+    }
+    return bytes;
   }
 
   private int findNextBreakIndex() {
