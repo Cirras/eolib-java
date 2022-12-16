@@ -11,6 +11,7 @@ import dev.cirras.generate.type.TypeFactory;
 import dev.cirras.util.JavaPoetUtils;
 import dev.cirras.util.NameUtils;
 import dev.cirras.util.NumberUtils;
+import dev.cirras.util.StringUtils;
 import dev.cirras.xml.ProtocolArray;
 import dev.cirras.xml.ProtocolBreak;
 import dev.cirras.xml.ProtocolCase;
@@ -149,7 +150,19 @@ final class ObjectCodeGenerator {
 
     data.getTypeSpec()
         .addType(TypeSpec.interfaceBuilder(interfaceName).addModifiers(Modifier.PUBLIC).build())
-        .addField(interfaceTypeName, caseDataFieldName);
+        .addField(interfaceTypeName, caseDataFieldName)
+        .addMethod(
+            MethodSpec.methodBuilder("get" + StringUtils.capitalize(caseDataFieldName))
+                .addModifiers(Modifier.PUBLIC)
+                .returns(interfaceTypeName)
+                .addStatement("return this.$L", caseDataFieldName)
+                .build())
+        .addMethod(
+            MethodSpec.methodBuilder("set" + StringUtils.capitalize(caseDataFieldName))
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(interfaceTypeName, caseDataFieldName)
+                .addStatement("this.$1L = $1L", caseDataFieldName)
+                .build());
 
     data.getSerialize().beginControlFlow("switch (data.$L)", fieldData.getJavaName());
     data.getDeserialize().beginControlFlow("switch (data.$L)", fieldData.getJavaName());
