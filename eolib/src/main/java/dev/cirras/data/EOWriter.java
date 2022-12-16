@@ -115,10 +115,10 @@ public final class EOWriter {
   public void addFixedString(String string, int length, boolean padded) {
     checkStringLength(string, length, padded);
     byte[] bytes = string.getBytes(Charset.forName("windows-1252"));
-    addBytes(bytes);
-    for (int i = bytes.length; i < length; ++i) {
-      addByte(0xFF);
+    if (padded) {
+      bytes = addPadding(bytes, length);
     }
+    addBytes(bytes);
   }
 
   /**
@@ -155,11 +155,11 @@ public final class EOWriter {
   public void addFixedEncodedString(String string, int length, boolean padded) {
     checkStringLength(string, length, padded);
     byte[] bytes = string.getBytes(Charset.forName("windows-1252"));
+    if (padded) {
+      bytes = addPadding(bytes, length);
+    }
     StringEncodingUtils.encodeString(bytes);
     addBytes(bytes);
-    for (int i = bytes.length; i < length; ++i) {
-      addByte(0xFF);
-    }
   }
 
   /**
@@ -202,6 +202,20 @@ public final class EOWriter {
     data = expanded;
   }
 
+  private static byte[] addPadding(byte[] bytes, int length) {
+    if (bytes.length == length) {
+      return bytes;
+    }
+
+    byte[] result = new byte[length];
+    System.arraycopy(bytes, 0, result, 0, bytes.length);
+    for (int i = bytes.length; i < length; ++i) {
+      result[i] = (byte) 0xFF;
+    }
+
+    return result;
+  }
+
   private static void checkNumberSize(int number, int max) {
     if (Integer.compareUnsigned(number, max) > 0) {
       throw new IllegalArgumentException(
@@ -211,7 +225,7 @@ public final class EOWriter {
 
   private static void checkStringLength(String string, int length, boolean padded) {
     if (padded) {
-      if (length > string.length()) {
+      if (length >= string.length()) {
         return;
       }
       throw new IllegalArgumentException(

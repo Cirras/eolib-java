@@ -65,6 +65,20 @@ class EOWriterTest {
   }
 
   @Test
+  void testAddPaddedFixedString() {
+    EOWriter writer = new EOWriter();
+    writer.addFixedString("bar", 6, true);
+    assertThat(writer.toByteArray()).containsExactly(toBytes("barÿÿÿ"));
+  }
+
+  @Test
+  void testAddPaddedWithPerfectFitFixedString() {
+    EOWriter writer = new EOWriter();
+    writer.addFixedString("bar", 3, true);
+    assertThat(writer.toByteArray()).containsExactly(toBytes("bar"));
+  }
+
+  @Test
   void testAddEncodedString() {
     EOWriter writer = new EOWriter();
     writer.addEncodedString("foo");
@@ -75,6 +89,20 @@ class EOWriterTest {
   void testAddFixedEncodedString() {
     EOWriter writer = new EOWriter();
     writer.addFixedEncodedString("bar", 3);
+    assertThat(writer.toByteArray()).containsExactly(toBytes("[>k"));
+  }
+
+  @Test
+  void testAddPaddedFixedEncodedString() {
+    EOWriter writer = new EOWriter();
+    writer.addFixedEncodedString("bar", 6, true);
+    assertThat(writer.toByteArray()).containsExactly(toBytes("ÿÿÿ-l="));
+  }
+
+  @Test
+  void testAddPaddedWithPerfectFitFixedEncodedString() {
+    EOWriter writer = new EOWriter();
+    writer.addFixedEncodedString("bar", 3, true);
     assertThat(writer.toByteArray()).containsExactly(toBytes("[>k"));
   }
 
@@ -108,9 +136,13 @@ class EOWriterTest {
     EOWriter writer = new EOWriter();
     assertThatThrownBy(() -> writer.addFixedString("foo", 2))
         .isExactlyInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> writer.addFixedString("foo", 2, true))
+        .isExactlyInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> writer.addFixedString("foo", 4))
         .isExactlyInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> writer.addFixedEncodedString("foo", 2))
+        .isExactlyInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> writer.addFixedEncodedString("foo", 2, true))
         .isExactlyInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> writer.addFixedEncodedString("foo", 4))
         .isExactlyInstanceOf(IllegalArgumentException.class);
