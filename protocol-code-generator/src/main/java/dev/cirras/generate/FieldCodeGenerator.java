@@ -180,7 +180,7 @@ class FieldCodeGenerator {
               .addStatement("this.$L = $L", javaName, javaName);
 
       if (comment != null) {
-        getter.addJavadoc(comment);
+        setter.addJavadoc(comment);
       }
 
       data.getTypeSpec().addMethod(setter.build());
