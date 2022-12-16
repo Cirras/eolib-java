@@ -437,6 +437,13 @@ final class ObjectCodeGenerator {
               .addField(int.class, "byteSize", Modifier.PRIVATE)
               .addMethod(
                   MethodSpec.methodBuilder("getByteSize")
+                      .addJavadoc("Returns the size of the data that this was deserialized from.")
+                      .addJavadoc("\n\n")
+                      .addJavadoc(
+                          "<p>0 if the instance was not created by {@link $T#deserialize}",
+                          typeName)
+                      .addJavadoc("\n\n")
+                      .addJavadoc("@returns the size of the data that this was deserialized from")
                       .addModifiers(Modifier.PUBLIC)
                       .returns(int.class)
                       .addStatement("return this.byteSize")
