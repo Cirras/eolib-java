@@ -1,4 +1,9 @@
 # EOLib
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Cirras_eolib-java&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Cirras_eolib-java)
+[![Format](https://github.com/Cirras/eolib-java/actions/workflows/format.yml/badge.svg?event=push)](https://github.com/Cirras/eolib-java/actions/workflows/format.yml)
+[![Build](https://github.com/Cirras/eolib-java/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/Cirras/eolib-java/actions/workflows/build.yml)
+[![Javadoc](https://github.com/Cirras/eolib-java/actions/workflows/javadoc.yml/badge.svg?event=push)](https://github.com/Cirras/eolib-java/actions/workflows/javadoc.yml)
+
 A Java library for working with the Endless Online network protocol and data files.
 
 ## Features
