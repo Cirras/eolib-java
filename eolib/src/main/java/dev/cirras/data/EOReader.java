@@ -149,8 +149,11 @@ public final class EOReader {
    * Sets the chunked reading mode for the reader.
    *
    * <p>In chunked reading mode:
-   * <li>the reader will treat <code>0xFF</code> bytes as the end of the current chunk.
-   * <li>{@link EOReader#nextChunk} can be called to move to the next chunk.
+   *
+   * <ul>
+   *   <li>the reader will treat <code>0xFF</code> bytes as the end of the current chunk.
+   *   <li>{@link EOReader#nextChunk} can be called to move to the next chunk.
+   * </ul>
    *
    * @param chunkedReadingMode the new chunked reading mode
    */

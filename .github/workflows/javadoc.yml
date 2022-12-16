@@ -23,13 +23,13 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Build
-        run: mvn -B install -DskipTests
-      - name: Deploy Javadoc
-        uses: MathieuSoysal/Javadoc-publisher.yml@v2.3.0
+      - name: Generate Javadoc
+        run: mvn -B -DskipTests install javadoc:javadoc
+      - name: Publish Javadoc
+        uses: JamesIves/github-pages-deploy-action@v4.4.0
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          javadoc-branch: javadoc
-          java-version: 17
-          target-folder: javadoc
-          project: maven
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: javadoc
+          clean: true
+          folder: eolib/target/site/apidocs
+          target-folder: .
