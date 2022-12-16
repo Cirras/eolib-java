@@ -20,7 +20,9 @@ import dev.cirras.xml.ProtocolComment;
 import dev.cirras.xml.ProtocolDummy;
 import dev.cirras.xml.ProtocolField;
 import dev.cirras.xml.ProtocolSwitch;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.lang.model.element.Modifier;
@@ -218,7 +220,24 @@ final class ObjectCodeGenerator {
 
       ObjectCodeGenerator objectCodeGenerator =
           new ObjectCodeGenerator(caseDataTypeName, typeFactory, caseContext);
-      protocolCase.getInstructions().forEach(objectCodeGenerator::generateInstruction);
+
+      List<Object> instructions;
+      if (caseContext.isChunkedReadingEnabled()) {
+        caseContext.setChunkedReadingEnabled(false);
+        // Synthesize a <chunked> element
+        ProtocolChunked chunked =
+            new ProtocolChunked() {
+              @Override
+              public List<Object> getInstructions() {
+                return protocolCase.getInstructions();
+              }
+            };
+        instructions = Collections.singletonList(chunked);
+      } else {
+        instructions = protocolCase.getInstructions();
+      }
+
+      instructions.forEach(objectCodeGenerator::generateInstruction);
 
       reachedOptionalField = reachedOptionalField || caseContext.isReachedOptionalField();
       reachedDummy = reachedDummy || caseContext.isReachedDummy();
