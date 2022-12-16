@@ -1,6 +1,5 @@
 package dev.cirras.generate;
 
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
@@ -11,6 +10,7 @@ import dev.cirras.generate.type.EnumType;
 import dev.cirras.generate.type.StructType;
 import dev.cirras.generate.type.Type;
 import dev.cirras.generate.type.TypeFactory;
+import dev.cirras.util.JavaPoetUtils;
 import dev.cirras.xml.Protocol;
 import dev.cirras.xml.ProtocolComment;
 import dev.cirras.xml.ProtocolEnum;
@@ -159,6 +159,7 @@ public final class CodeGenerator {
 
     TypeSpec.Builder typeSpec =
         TypeSpec.enumBuilder(className)
+            .addAnnotation(JavaPoetUtils.getGeneratedAnnotationTypeName())
             .addModifiers(Modifier.PUBLIC)
             .addField(int.class, "value", Modifier.PRIVATE, Modifier.FINAL)
             .addMethod(
@@ -258,8 +259,6 @@ public final class CodeGenerator {
     protocolStruct.getInstructions().forEach(objectCodeGenerator::generateInstruction);
 
     TypeSpec.Builder typeSpec = objectCodeGenerator.getTypeSpec();
-
-    typeSpec.addAnnotation(getGeneratedAnnotation());
     protocolStruct.getComment().map(ProtocolComment::getText).ifPresent(typeSpec::addJavadoc);
 
     return JavaFile.builder(packageName, typeSpec.build()).build();
@@ -310,7 +309,6 @@ public final class CodeGenerator {
     TypeSpec.Builder typeSpec =
         objectCodeGenerator
             .getTypeSpec()
-            .addAnnotation(getGeneratedAnnotation())
             .addMethod(
                 MethodSpec.methodBuilder("family")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -327,12 +325,5 @@ public final class CodeGenerator {
     protocolPacket.getComment().map(ProtocolComment::getText).ifPresent(typeSpec::addJavadoc);
 
     return JavaFile.builder(packageName, typeSpec.build()).build();
-  }
-
-  private static AnnotationSpec getGeneratedAnnotation() {
-    ClassName className = ClassName.get("jakarta.annotation", "Generated");
-    return AnnotationSpec.builder(className)
-        .addMember("value", "$S", CodeGenerator.class.getName())
-        .build();
   }
 }

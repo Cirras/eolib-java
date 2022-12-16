@@ -1,7 +1,6 @@
 package dev.cirras.util;
 
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 public final class JavaPoetUtils {
@@ -13,15 +12,19 @@ public final class JavaPoetUtils {
     return builder.build().toBuilder();
   }
 
-  public static TypeName getWriterTypeName() {
+  public static ClassName getWriterTypeName() {
     return ClassName.get("dev.cirras.data", "EOWriter");
   }
 
-  public static TypeName getReaderTypeName() {
+  public static ClassName getReaderTypeName() {
     return ClassName.get("dev.cirras.data", "EOReader");
   }
 
-  public static TypeName getSerializationErrorTypeName() {
+  public static ClassName getSerializationErrorTypeName() {
     return ClassName.get("dev.cirras.protocol", "SerializationError");
+  }
+
+  public static ClassName getGeneratedAnnotationTypeName() {
+    return ClassName.get("dev.cirras.protocol", "Generated");
   }
 }

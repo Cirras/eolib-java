@@ -432,6 +432,7 @@ final class ObjectCodeGenerator {
       this.typeName = typeName;
       this.typeSpec =
           TypeSpec.classBuilder(typeName)
+              .addAnnotation(JavaPoetUtils.getGeneratedAnnotationTypeName())
               .addModifiers(Modifier.PUBLIC)
               .addField(int.class, "byteSize", Modifier.PRIVATE)
               .addMethod(
