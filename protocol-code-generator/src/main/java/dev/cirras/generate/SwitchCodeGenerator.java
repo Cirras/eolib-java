@@ -40,6 +40,7 @@ final class SwitchCodeGenerator {
     data.getTypeSpec()
         .addType(
             TypeSpec.interfaceBuilder(getInterfaceTypeName())
+                .addJavadoc(getCaseDataJavadocComment())
                 .addModifiers(Modifier.PUBLIC)
                 .build());
   }
@@ -51,12 +52,14 @@ final class SwitchCodeGenerator {
         .addField(interfaceTypeName, caseDataFieldName)
         .addMethod(
             MethodSpec.methodBuilder("get" + StringUtils.capitalize(caseDataFieldName))
+                .addJavadoc(getCaseDataJavadocComment())
                 .addModifiers(Modifier.PUBLIC)
                 .returns(interfaceTypeName)
                 .addStatement("return this.$L", caseDataFieldName)
                 .build())
         .addMethod(
             MethodSpec.methodBuilder("set" + StringUtils.capitalize(caseDataFieldName))
+                .addJavadoc(getCaseDataJavadocComment())
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(interfaceTypeName, caseDataFieldName)
                 .addStatement("this.$1L = $1L", caseDataFieldName)
@@ -161,6 +164,12 @@ final class SwitchCodeGenerator {
     data.getDeserialize().addStatement("break").unindent();
 
     return caseContext;
+  }
+
+  private String getCaseDataJavadocComment() {
+    return "Data associated with different values of the "
+        + getFieldData().getJavaName()
+        + " field";
   }
 
   private TypeSpec createCaseDataTypeSpec(
