@@ -311,12 +311,18 @@ public final class CodeGenerator {
             .getTypeSpec()
             .addMethod(
                 MethodSpec.methodBuilder("family")
+                    .addJavadoc("Returns the packet family associated with this type.")
+                    .addJavadoc("\n\n")
+                    .addJavadoc("@return the packet family associated with this type")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(familyTypeName)
                     .addStatement("return $T.$L", familyTypeName, familyValueJavaName)
                     .build())
             .addMethod(
                 MethodSpec.methodBuilder("action")
+                    .addJavadoc("Returns the packet action associated with this type.")
+                    .addJavadoc("\n\n")
+                    .addJavadoc("@return the packet action associated with this type")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(actionTypeName)
                     .addStatement("return $T.$L", actionTypeName, actionValueJavaName)
