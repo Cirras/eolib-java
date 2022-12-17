@@ -185,6 +185,13 @@ final class ObjectCodeGenerator {
 
   private MethodSpec generateSerializeMethod() {
     return MethodSpec.methodBuilder("serialize")
+        .addJavadoc(
+            "Serializes an instance of {@code $T} to the provided {@code $T}.",
+            data.getTypeName(),
+            JavaPoetUtils.getWriterTypeName())
+        .addJavadoc("\n\n")
+        .addJavadoc("@param writer the writer that the data will be serialized to")
+        .addJavadoc("@param data the data to serialize")
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         .addParameter(JavaPoetUtils.getWriterTypeName(), "writer")
         .addParameter(data.getTypeName(), "data")
@@ -194,6 +201,13 @@ final class ObjectCodeGenerator {
 
   private MethodSpec generateDeserializeMethod() {
     return MethodSpec.methodBuilder("deserialize")
+        .addJavadoc(
+            "Deserializes an instance of {@code $T} from the provided {@code $T}.",
+            data.getTypeName(),
+            JavaPoetUtils.getReaderTypeName())
+        .addJavadoc("\n\n")
+        .addJavadoc("@param reader the reader that the data will be deserialized from")
+        .addJavadoc("@return the deserialized data")
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         .addParameter(JavaPoetUtils.getReaderTypeName(), "reader")
         .returns(data.getTypeName())
