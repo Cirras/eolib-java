@@ -23,7 +23,7 @@ Utilities:
 - EO string encode/decode
 
 ## Requirements
-- JDK 8+
+- JDK 11+
 - [Maven](https://maven.apache.org/)
 
 ## Build & Test
