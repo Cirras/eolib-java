@@ -37,29 +37,37 @@ final class SwitchCodeGenerator {
   }
 
   void generateCaseDataInterface() {
-    data.getTypeSpec()
-        .addType(
-            TypeSpec.interfaceBuilder(getInterfaceTypeName())
-                .addJavadoc(getCaseDataJavadocComment())
-                .addModifiers(Modifier.PUBLIC)
-                .build());
+    TypeSpec typeSpec =
+        TypeSpec.interfaceBuilder(getInterfaceTypeName())
+            .addJavadoc(
+                "Data associated with different values of the {@code "
+                    + getFieldData().getJavaName()
+                    + "} field")
+            .addModifiers(Modifier.PUBLIC)
+            .build();
+    data.getTypeSpec().addType(typeSpec);
   }
 
   void generateCaseDataField() {
     ClassName interfaceTypeName = getInterfaceTypeName();
     String caseDataFieldName = getCaseDataFieldName();
+    String switchFieldName = getFieldData().getJavaName();
     data.getTypeSpec()
         .addField(interfaceTypeName, caseDataFieldName)
         .addMethod(
             MethodSpec.methodBuilder("get" + StringUtils.capitalize(caseDataFieldName))
-                .addJavadoc(getCaseDataJavadocComment())
+                .addJavadoc("Returns data associated with the {@code $L} field.", switchFieldName)
+                .addJavadoc("\n\n")
+                .addJavadoc("@return data associated with the {@code $L} field", switchFieldName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(interfaceTypeName)
                 .addStatement("return this.$L", caseDataFieldName)
                 .build())
         .addMethod(
             MethodSpec.methodBuilder("set" + StringUtils.capitalize(caseDataFieldName))
-                .addJavadoc(getCaseDataJavadocComment())
+                .addJavadoc("Sets data associated with the {@code $L} field.", switchFieldName)
+                .addJavadoc("\n\n")
+                .addJavadoc("@param $1L the new $1L", caseDataFieldName)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(interfaceTypeName, caseDataFieldName)
                 .addStatement("this.$1L = $1L", caseDataFieldName)
@@ -85,35 +93,9 @@ final class SwitchCodeGenerator {
       data.getSerialize().add("default:\n").indent();
       data.getDeserialize().add("default:\n").indent();
     } else {
-      String caseValue = protocolCase.getValue();
-      caseDataName += caseValue;
+      caseDataName += protocolCase.getValue();
 
-      String caseValueExpression;
-      Type fieldType = fieldData.getType();
-      if (fieldType instanceof IntegerType) {
-        if (!NumberUtils.isInteger(caseValue)) {
-          throw new CodeGenerationError(
-              String.format("\"%s\" is not a valid integer value.", fieldName));
-        }
-        caseValueExpression = caseValue;
-      } else if (fieldType instanceof EnumType) {
-        EnumType enumType = (EnumType) fieldType;
-        Optional<EnumType.EnumValue> enumValue = enumType.getEnumValueByProtocolName(caseValue);
-        caseValueExpression =
-            enumValue
-                .map(EnumType.EnumValue::getJavaName)
-                .orElseThrow(
-                    () ->
-                        new CodeGenerationError(
-                            String.format(
-                                "\"%s\" is not a valid value for enum type %s",
-                                caseValue, enumType.getName())));
-      } else {
-        throw new CodeGenerationError(
-            String.format(
-                "%s field referenced by switch must be a numeric or enumeration type.", fieldName));
-      }
-
+      String caseValueExpression = getCaseValueExpression(protocolCase);
       data.getSerialize().add("case $L:\n", caseValueExpression).indent();
       data.getDeserialize().add("case $L:\n", caseValueExpression).indent();
     }
@@ -122,54 +104,48 @@ final class SwitchCodeGenerator {
     caseContext.getAccessibleFields().clear();
 
     ClassName caseDataTypeName = data.getTypeName().nestedClass(caseDataName);
+    String caseDataFieldName = getCaseDataFieldName();
 
     if (protocolCase.getInstructions().isEmpty()) {
       data.getSerialize()
-          .beginControlFlow("if (data.$L != null)", getCaseDataFieldName())
+          .beginControlFlow("if (data.$L != null)", caseDataFieldName)
           .addStatement(
               "throw new $1T(String.format("
                   + "\"Expected $2L to be null for $3L %s. (Got %s)\""
                   + ", data.$3L, data.$2L.getClass().getName()))",
               JavaPoetUtils.getSerializationErrorTypeName(),
-              getCaseDataFieldName(),
+              caseDataFieldName,
               fieldData.getJavaName())
           .endControlFlow();
 
-      data.getDeserialize().addStatement("data.$L = null", getCaseDataFieldName());
+      data.getDeserialize().addStatement("data.$L = null", caseDataFieldName);
     } else {
       data.getTypeSpec()
           .addType(createCaseDataTypeSpec(protocolCase, caseDataTypeName, caseContext));
 
       data.getSerialize()
           .beginControlFlow(
-              "if (!data.$L.getClass().equals($T.class))", getCaseDataFieldName(), caseDataTypeName)
+              "if (!data.$L.getClass().equals($T.class))", caseDataFieldName, caseDataTypeName)
           .addStatement(
               "throw new $1T(String.format("
                   + "\"Expected $2L to be type $3T for $4L %s. (Got %s)\""
                   + ", data.$4L, data.$2L.getClass().getName()))",
               JavaPoetUtils.getSerializationErrorTypeName(),
-              getCaseDataFieldName(),
+              caseDataFieldName,
               caseDataTypeName,
               fieldData.getJavaName())
           .endControlFlow()
           .addStatement(
-              "$1T.serialize(writer, ($1T) data.$2L)", caseDataTypeName, getCaseDataFieldName());
+              "$1T.serialize(writer, ($1T) data.$2L)", caseDataTypeName, caseDataFieldName);
 
       data.getDeserialize()
-          .addStatement(
-              "data.$L = $T.deserialize(reader)", getCaseDataFieldName(), caseDataTypeName);
+          .addStatement("data.$L = $T.deserialize(reader)", caseDataFieldName, caseDataTypeName);
     }
 
     data.getSerialize().addStatement("break").unindent();
     data.getDeserialize().addStatement("break").unindent();
 
     return caseContext;
-  }
-
-  private String getCaseDataJavadocComment() {
-    return "Data associated with different values of the "
-        + getFieldData().getJavaName()
-        + " field";
   }
 
   private TypeSpec createCaseDataTypeSpec(
@@ -197,15 +173,29 @@ final class SwitchCodeGenerator {
 
     instructions.forEach(objectCodeGenerator::generateInstruction);
 
-    TypeSpec.Builder caseDataTypeSpec =
-        objectCodeGenerator
-            .getTypeSpec()
-            .addModifiers(Modifier.STATIC, Modifier.FINAL)
-            .addSuperinterface(getInterfaceTypeName());
+    ObjectCodeGenerator.FieldData fieldData = getFieldData();
+    String caseDataTypeJavadoc =
+        protocolCase.isDefault()
+            ? "Default data associated with {@code " + fieldData.getJavaName() + "}."
+            : "Data associated with {@code "
+                + fieldData.getJavaName()
+                + "} value {@code "
+                + getCaseValueExpression(protocolCase)
+                + "}.";
 
-    protocolCase.getComment().map(ProtocolComment::getText).ifPresent(caseDataTypeSpec::addJavadoc);
+    caseDataTypeJavadoc +=
+        protocolCase
+            .getComment()
+            .map(ProtocolComment::getText)
+            .map(comment -> "\n\n" + comment)
+            .orElse("");
 
-    return caseDataTypeSpec.build();
+    return objectCodeGenerator
+        .getTypeSpec()
+        .addJavadoc(caseDataTypeJavadoc)
+        .addModifiers(Modifier.STATIC, Modifier.FINAL)
+        .addSuperinterface(getInterfaceTypeName())
+        .build();
   }
 
   private ObjectCodeGenerator.FieldData getFieldData() {
@@ -224,5 +214,35 @@ final class SwitchCodeGenerator {
 
   private String getCaseDataFieldName() {
     return getFieldData().getJavaName() + "Data";
+  }
+
+  private String getCaseValueExpression(ProtocolCase protocolCase) {
+    Type fieldType = getFieldData().getType();
+    String caseValue = protocolCase.getValue();
+
+    if (fieldType instanceof IntegerType) {
+      if (!NumberUtils.isInteger(caseValue)) {
+        throw new CodeGenerationError(
+            String.format("\"%s\" is not a valid integer value.", caseValue));
+      }
+      return caseValue;
+    }
+
+    if (fieldType instanceof EnumType) {
+      EnumType enumType = (EnumType) fieldType;
+      Optional<EnumType.EnumValue> enumValue = enumType.getEnumValueByProtocolName(caseValue);
+      return enumValue
+          .map(EnumType.EnumValue::getJavaName)
+          .orElseThrow(
+              () ->
+                  new CodeGenerationError(
+                      String.format(
+                          "\"%s\" is not a valid value for enum type %s",
+                          caseValue, enumType.getName())));
+    }
+
+    throw new CodeGenerationError(
+        String.format(
+            "%s field referenced by switch must be a numeric or enumeration type.", fieldName));
   }
 }
