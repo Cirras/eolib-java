@@ -160,31 +160,67 @@ class FieldCodeGenerator {
         .put(name, new ObjectCodeGenerator.FieldData(javaName, type, false));
     data.getTypeSpec().addField(javaTypeName, javaName, Modifier.PRIVATE);
 
+    CodeBlock javadoc = getAccessorJavadoc();
+
     MethodSpec.Builder getter =
         MethodSpec.methodBuilder("get" + NameUtils.snakeCaseToPascalCase(name))
+            .addJavadoc(javadoc)
             .addModifiers(Modifier.PUBLIC)
             .returns(javaTypeName)
             .addStatement("return this.$L", javaName);
-
-    if (comment != null) {
-      getter.addJavadoc(comment);
-    }
 
     data.getTypeSpec().addMethod(getter.build());
 
     if (hardcodedValue == null) {
       MethodSpec.Builder setter =
           MethodSpec.methodBuilder("set" + NameUtils.snakeCaseToPascalCase(name))
+              .addJavadoc(javadoc)
               .addModifiers(Modifier.PUBLIC)
               .addParameter(javaTypeName, javaName)
               .addStatement("this.$L = $L", javaName, javaName);
 
-      if (comment != null) {
-        setter.addJavadoc(comment);
-      }
-
       data.getTypeSpec().addMethod(setter.build());
     }
+  }
+
+  private CodeBlock getAccessorJavadoc() {
+    CodeBlock.Builder javadoc = CodeBlock.builder();
+
+    if (comment != null) {
+      javadoc.add(comment);
+    }
+
+    CodeBlock.Builder notes = CodeBlock.builder();
+
+    String expression = getLengthExpression("this");
+    if (expression != null) {
+      String sizeDescription = "{@code " + expression + "}";
+      if (padded) {
+        sizeDescription += " or less";
+      }
+      String sizeName = array ? "Size" : "Length";
+      notes.add("<li>$L must be $L.\n", sizeName, sizeDescription);
+    }
+
+    Type type = getType();
+    if (type instanceof IntegerType) {
+      String valueDescription = array ? "Element value" : "Value";
+      int size = type.getFixedSize().orElseThrow(AssertionError::new);
+      long maxValue = type.getName().equals("byte") ? 255 : (long) Math.pow(253, size) - 1;
+      notes.add("<li>$L range is 0-$L.\n", valueDescription, maxValue);
+    }
+
+    if (!notes.isEmpty()) {
+      if (!javadoc.isEmpty()) {
+        javadoc.add("\n\n");
+      }
+      javadoc.add("<b>Note:</b>\n");
+      javadoc.add("<ul>\n");
+      javadoc.add(notes.build());
+      javadoc.add("</ul>");
+    }
+
+    return javadoc.build();
   }
 
   void generateSerialize() {
@@ -197,7 +233,7 @@ class FieldCodeGenerator {
 
     if (array) {
       String javaName = NameUtils.snakeCaseToCamelCase(name);
-      String arraySizeExpression = getLengthExpression();
+      String arraySizeExpression = getLengthExpression("data");
       if (arraySizeExpression == null) {
         arraySizeExpression = "data." + javaName + ".size()";
       }
@@ -226,7 +262,7 @@ class FieldCodeGenerator {
       return;
     }
 
-    String lengthExpression = getLengthExpression();
+    String lengthExpression = getLengthExpression("data");
     if (lengthExpression == null) {
       return;
     }
@@ -280,7 +316,7 @@ class FieldCodeGenerator {
     if (type instanceof BasicType) {
       return CodeBlock.builder()
           .addStatement(
-              getWriteStatementForBasicType((BasicType) type, getLengthExpression(), padded),
+              getWriteStatementForBasicType((BasicType) type, getLengthExpression("data"), padded),
               valueExpression)
           .build();
     } else if (type instanceof StructType) {
@@ -370,7 +406,7 @@ class FieldCodeGenerator {
   }
 
   private void generateDeserializeArray() {
-    String arraySizeExpression = getLengthExpression();
+    String arraySizeExpression = getLengthExpression("data");
     if (arraySizeExpression == null && !delimited) {
       Optional<Integer> elementSize = getType().getFixedSize();
       if (elementSize.isPresent()) {
@@ -432,7 +468,7 @@ class FieldCodeGenerator {
     }
 
     if (type instanceof BasicType) {
-      String lengthExpression = getLengthExpression();
+      String lengthExpression = getLengthExpression("data");
       if (lengthExpression != null && lengthOffset != 0) {
         lengthExpression = "java.lang.Math.max(" + lengthExpression + ", 0)";
       }
@@ -529,7 +565,7 @@ class FieldCodeGenerator {
     return result;
   }
 
-  private String getLengthExpression() {
+  private String getLengthExpression(String objectName) {
     if (lengthString == null) {
       return null;
     }
@@ -540,10 +576,11 @@ class FieldCodeGenerator {
         throw new CodeGenerationError(
             String.format("Referenced %s field is not accessible.", expression));
       }
-      expression = "data." + fieldData.getJavaName();
+      expression = objectName + "." + fieldData.getJavaName();
     }
     if (lengthOffset != 0) {
-      expression += " + " + lengthOffset;
+      String operator = lengthOffset > 0 ? "+" : "-";
+      expression += String.format(" %s %d", operator, Math.abs(lengthOffset));
     }
     return expression;
   }
