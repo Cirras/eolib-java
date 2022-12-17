@@ -325,7 +325,7 @@ final class ObjectCodeGenerator {
                           "<p>0 if the instance was not created by {@link $T#deserialize}",
                           typeName)
                       .addJavadoc("\n\n")
-                      .addJavadoc("@returns the size of the data that this was deserialized from")
+                      .addJavadoc("@return the size of the data that this was deserialized from")
                       .addModifiers(Modifier.PUBLIC)
                       .returns(int.class)
                       .addStatement("return this.byteSize")
