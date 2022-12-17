@@ -15,7 +15,7 @@ public final class EOWriter {
    * Adds a raw byte to the writer data.
    *
    * @param value the byte to add
-   * @throws IllegalArgumentException if the value is above <code>0xFF</code>.
+   * @throws IllegalArgumentException if the value is above {@code 0xFF}.
    */
   public void addByte(int value) {
     checkNumberSize(value, 0xFF);
@@ -108,7 +108,7 @@ public final class EOWriter {
    *
    * @param string the string to be added
    * @param length the expected length of the string
-   * @param padded true if the string should be padded to the length with trailing <code>0xFF</code>
+   * @param padded true if the string should be padded to the length with trailing {@code 0xFF}
    *     bytes.
    * @throws IllegalArgumentException if the string does not have the expected length
    */
@@ -148,7 +148,7 @@ public final class EOWriter {
    *
    * @param string the string to be encoded and added
    * @param length the expected length of the string
-   * @param padded true if the string should be padded to the length with trailing <code>0xFF</code>
+   * @param padded true if the string should be padded to the length with trailing {@code 0xFF}
    *     bytes
    * @throws IllegalArgumentException if the string does not have the expected length
    */

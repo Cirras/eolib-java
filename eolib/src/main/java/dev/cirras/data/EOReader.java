@@ -88,7 +88,7 @@ public final class EOReader {
    * Reads a string with a fixed length from the input data.
    *
    * @param length the length of the string
-   * @param padded true if the string is padded with trailing <code>0xFF</code> bytes
+   * @param padded true if the string is padded with trailing {@code 0xFF} bytes
    * @return a decoded string
    * @throws IllegalArgumentException if the length is negative
    */
@@ -129,7 +129,7 @@ public final class EOReader {
    * Reads an encoded string with a fixed length from the input data.
    *
    * @param length the length of the string
-   * @param padded true if the string is padded with trailing <code>0xFF</code> bytes
+   * @param padded true if the string is padded with trailing {@code 0xFF} bytes
    * @return a decoded string
    * @throws IllegalArgumentException if the length is negative
    */
@@ -151,7 +151,7 @@ public final class EOReader {
    * <p>In chunked reading mode:
    *
    * <ul>
-   *   <li>the reader will treat <code>0xFF</code> bytes as the end of the current chunk.
+   *   <li>the reader will treat {@code 0xFF} bytes as the end of the current chunk.
    *   <li>{@link EOReader#nextChunk} can be called to move to the next chunk.
    * </ul>
    *

@@ -3,7 +3,7 @@ package dev.cirras.data;
 /**
  * Constants for the maximum values of the EO numeric types.
  *
- * <p>The largest valid value for each type is <code>TYPE_MAX - 1</code>.
+ * <p>The largest valid value for each type is {@code TYPE_MAX - 1}.
  */
 public final class EONumericLimits {
   /** The maximum value of an EO char (1-byte encoded integer type) */
@@ -18,9 +18,9 @@ public final class EONumericLimits {
   /**
    * The maximum value of an EO int (4-byte encoded integer type)
    *
-   * <p>NOTE: This constant stores an unsigned value of 4097152081. The java <code>int</code> type
-   * is signed, meaning this value overflows. You must use the <code>Integer</code> utility methods
-   * for unsigned arithmetic and comparisons.
+   * <p>NOTE: This constant stores an unsigned value of 4097152081. The java {@code int} type is
+   * signed, meaning this value overflows. You must use the {@code Integer} utility methods for
+   * unsigned arithmetic and comparisons.
    */
   public static final int INT_MAX = (int) ((long) CHAR_MAX * CHAR_MAX * CHAR_MAX * CHAR_MAX);
 
