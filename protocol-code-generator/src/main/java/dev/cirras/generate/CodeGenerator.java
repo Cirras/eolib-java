@@ -171,6 +171,9 @@ public final class CodeGenerator {
                     .build())
             .addMethod(
                 MethodSpec.methodBuilder("getValue")
+                    .addJavadoc("Returns the integer value of this enumeration constant.")
+                    .addJavadoc("\n\n")
+                    .addJavadoc("@return the integer value of this enumeration constant")
                     .addModifiers(Modifier.PUBLIC)
                     .returns(int.class)
                     .addStatement("return value")
@@ -244,6 +247,14 @@ public final class CodeGenerator {
 
     typeSpec.addMethod(
         MethodSpec.methodBuilder("fromInteger")
+            .addJavadoc("Returns the enum constant of this type with the specified integer value.")
+            .addJavadoc("\n\n")
+            .addJavadoc("@param value the integer value\n")
+            .addJavadoc("@return the enum constant with the specified integer value\n")
+            .addJavadoc(
+                "@throws $T if the enum type has no constant with the specified integer value\n",
+                IllegalArgumentException.class)
+            .addJavadoc("@throws $T if the argument is null", NullPointerException.class)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addParameter(int.class, "value")
             .returns(className)
