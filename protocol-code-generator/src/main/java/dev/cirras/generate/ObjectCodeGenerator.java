@@ -206,7 +206,7 @@ final class ObjectCodeGenerator {
             data.getTypeName(),
             JavaPoetUtils.getWriterTypeName())
         .addJavadoc("\n\n")
-        .addJavadoc("@param writer the writer that the data will be serialized to")
+        .addJavadoc("@param writer the writer that the data will be serialized to\n")
         .addJavadoc("@param data the data to serialize")
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         .addParameter(JavaPoetUtils.getWriterTypeName(), "writer")
@@ -222,7 +222,7 @@ final class ObjectCodeGenerator {
             data.getTypeName(),
             JavaPoetUtils.getReaderTypeName())
         .addJavadoc("\n\n")
-        .addJavadoc("@param reader the reader that the data will be deserialized from")
+        .addJavadoc("@param reader the reader that the data will be deserialized from\n")
         .addJavadoc("@return the deserialized data")
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         .addParameter(JavaPoetUtils.getReaderTypeName(), "reader")
