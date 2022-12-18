@@ -6,6 +6,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import dev.cirras.generate.type.Type;
 import dev.cirras.generate.type.TypeFactory;
+import dev.cirras.util.CommentUtils;
 import dev.cirras.util.JavaPoetUtils;
 import dev.cirras.xml.ProtocolArray;
 import dev.cirras.xml.ProtocolBreak;
@@ -68,7 +69,12 @@ final class ObjectCodeGenerator {
             .padded(protocolField.isPadded())
             .optional(protocolField.isOptional())
             .hardcodedValue(protocolField.getValue())
-            .comment(protocolField.getComment().map(ProtocolComment::getText).orElse(null))
+            .comment(
+                protocolField
+                    .getComment()
+                    .map(ProtocolComment::getText)
+                    .map(CommentUtils::formatComment)
+                    .orElse(null))
             .build();
 
     fieldCodeGenerator.generateField();
@@ -98,7 +104,12 @@ final class ObjectCodeGenerator {
             .length(protocolArray.getLength())
             .lengthOffset(protocolArray.getLengthOffset())
             .optional(protocolArray.isOptional())
-            .comment(protocolArray.getComment().map(ProtocolComment::getText).orElse(null))
+            .comment(
+                protocolArray
+                    .getComment()
+                    .map(ProtocolComment::getText)
+                    .map(CommentUtils::formatComment)
+                    .orElse(null))
             .array(true)
             .delimited(protocolArray.isDelimited())
             .build();
@@ -117,7 +128,12 @@ final class ObjectCodeGenerator {
         FieldCodeGenerator.builder(typeFactory, context, data)
             .type(protocolDummy.getType())
             .hardcodedValue(protocolDummy.getValue())
-            .comment(protocolDummy.getComment().map(ProtocolComment::getText).orElse(null))
+            .comment(
+                protocolDummy
+                    .getComment()
+                    .map(ProtocolComment::getText)
+                    .map(CommentUtils::formatComment)
+                    .orElse(null))
             .build();
 
     data.getSerialize().beginControlFlow("if (writer.getLength() == 0)");

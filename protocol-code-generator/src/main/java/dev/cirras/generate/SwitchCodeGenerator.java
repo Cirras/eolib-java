@@ -7,6 +7,7 @@ import dev.cirras.generate.type.EnumType;
 import dev.cirras.generate.type.IntegerType;
 import dev.cirras.generate.type.Type;
 import dev.cirras.generate.type.TypeFactory;
+import dev.cirras.util.CommentUtils;
 import dev.cirras.util.JavaPoetUtils;
 import dev.cirras.util.NameUtils;
 import dev.cirras.util.NumberUtils;
@@ -187,7 +188,8 @@ final class SwitchCodeGenerator {
         protocolCase
             .getComment()
             .map(ProtocolComment::getText)
-            .map(comment -> "\n\n" + comment)
+            .map(CommentUtils::formatComment)
+            .map(comment -> "\n\n<p>" + comment)
             .orElse("");
 
     return objectCodeGenerator

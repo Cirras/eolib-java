@@ -10,6 +10,7 @@ import dev.cirras.generate.type.EnumType;
 import dev.cirras.generate.type.StructType;
 import dev.cirras.generate.type.Type;
 import dev.cirras.generate.type.TypeFactory;
+import dev.cirras.util.CommentUtils;
 import dev.cirras.util.JavaPoetUtils;
 import dev.cirras.xml.Protocol;
 import dev.cirras.xml.ProtocolComment;
@@ -175,7 +176,11 @@ public final class CodeGenerator {
                     .addStatement("return value")
                     .build());
 
-    protocolEnum.getComment().map(ProtocolComment::getText).ifPresent(typeSpec::addJavadoc);
+    protocolEnum
+        .getComment()
+        .map(ProtocolComment::getText)
+        .map(CommentUtils::formatComment)
+        .ifPresent(typeSpec::addJavadoc);
 
     CodeBlock.Builder fromIntegerSwitchBlock =
         CodeBlock.builder().beginControlFlow("switch (value)");
@@ -259,7 +264,11 @@ public final class CodeGenerator {
     protocolStruct.getInstructions().forEach(objectCodeGenerator::generateInstruction);
 
     TypeSpec.Builder typeSpec = objectCodeGenerator.getTypeSpec();
-    protocolStruct.getComment().map(ProtocolComment::getText).ifPresent(typeSpec::addJavadoc);
+    protocolStruct
+        .getComment()
+        .map(ProtocolComment::getText)
+        .map(CommentUtils::formatComment)
+        .ifPresent(typeSpec::addJavadoc);
 
     return JavaFile.builder(packageName, typeSpec.build()).build();
   }
@@ -328,7 +337,11 @@ public final class CodeGenerator {
                     .addStatement("return $T.$L", actionTypeName, actionValueJavaName)
                     .build());
 
-    protocolPacket.getComment().map(ProtocolComment::getText).ifPresent(typeSpec::addJavadoc);
+    protocolPacket
+        .getComment()
+        .map(ProtocolComment::getText)
+        .map(CommentUtils::formatComment)
+        .ifPresent(typeSpec::addJavadoc);
 
     return JavaFile.builder(packageName, typeSpec.build()).build();
   }
