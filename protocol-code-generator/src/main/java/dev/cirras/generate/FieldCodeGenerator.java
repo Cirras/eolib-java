@@ -270,7 +270,7 @@ class FieldCodeGenerator {
       if (!javadoc.isEmpty()) {
         javadoc.add("\n\n");
       }
-      javadoc.add("<b>Note:</b>\n");
+      javadoc.add("<b>Note:</b>\n\n");
       javadoc.add("<ul>\n");
       javadoc.add(notes.build());
       javadoc.add("</ul>");
@@ -295,7 +295,7 @@ class FieldCodeGenerator {
       }
 
       String sizeName = arrayField ? "Size" : "Length";
-      note.add("<li>$L must be $L.\n", sizeName, sizeDescription);
+      note.add("  <li>$L must be $L.\n", sizeName, sizeDescription);
     }
     return note.build();
   }
@@ -305,7 +305,7 @@ class FieldCodeGenerator {
     Type type = getType();
     if (type instanceof IntegerType) {
       String valueDescription = arrayField ? "Element value" : "Value";
-      note.add("<li>$L range is 0-$L.\n", valueDescription, getMaxValueOf((IntegerType) type));
+      note.add("  <li>$L range is 0-$L.\n", valueDescription, getMaxValueOf((IntegerType) type));
     }
     return note.build();
   }
