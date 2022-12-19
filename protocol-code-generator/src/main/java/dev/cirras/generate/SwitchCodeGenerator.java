@@ -220,9 +220,15 @@ final class SwitchCodeGenerator {
   }
 
   private String getCaseValueExpression(ProtocolCase protocolCase) {
-    Type fieldType = getFieldData().getType();
+    ObjectCodeGenerator.FieldData fieldData = getFieldData();
     String caseValue = protocolCase.getValue();
 
+    if (fieldData.isArray()) {
+      throw new CodeGenerationError(
+          String.format("\"%s\" field referenced by switch must not be an array.", caseValue));
+    }
+
+    Type fieldType = fieldData.getType();
     if (fieldType instanceof IntegerType) {
       if (!NumberUtils.isInteger(caseValue)) {
         throw new CodeGenerationError(
