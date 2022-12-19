@@ -316,11 +316,7 @@ class FieldCodeGenerator {
   }
 
   void generateSerialize() {
-    if (optional) {
-      String javaName = NameUtils.snakeCaseToCamelCase(name);
-      data.getSerialize().beginControlFlow("if (data.$L != null)", javaName);
-    }
-
+    generateSerializeNullCheck();
     generateSerializeLengthCheck();
 
     if (arrayField) {
@@ -343,9 +339,28 @@ class FieldCodeGenerator {
     if (arrayField) {
       data.getSerialize().endControlFlow();
     }
+  }
+
+  private void generateSerializeNullCheck() {
+    if (name == null) {
+      return;
+    }
+
+    String javaName = NameUtils.snakeCaseToCamelCase(name);
 
     if (optional) {
-      data.getSerialize().endControlFlow();
+      data.getSerialize()
+          .beginControlFlow("if (data.$L == null)", javaName)
+          .addStatement("return")
+          .endControlFlow();
+    } else {
+      data.getSerialize()
+          .beginControlFlow("if (data.$L == null)", javaName)
+          .addStatement(
+              "throw new $T($S)",
+              JavaPoetUtils.getSerializationErrorTypeName(),
+              javaName + " must not be null.")
+          .endControlFlow();
     }
   }
 
