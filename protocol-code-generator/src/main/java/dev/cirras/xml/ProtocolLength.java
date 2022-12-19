@@ -5,19 +5,18 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
 
-@XmlRootElement(name = "array")
-public class ProtocolArray {
+@XmlRootElement(name = "length")
+public class ProtocolLength {
   @XmlAttribute(required = true)
   private String name;
 
   @XmlAttribute(required = true)
   private String type;
 
-  @XmlAttribute private String length;
+  @XmlAttribute(name = "offset")
+  private int offset;
 
   @XmlAttribute private boolean optional;
-
-  @XmlAttribute private boolean delimited;
 
   @XmlElement private ProtocolComment comment;
 
@@ -29,16 +28,12 @@ public class ProtocolArray {
     return type;
   }
 
-  public String getLength() {
-    return length;
+  public int getOffset() {
+    return offset;
   }
 
   public boolean isOptional() {
     return optional;
-  }
-
-  public boolean isDelimited() {
-    return delimited;
   }
 
   public Optional<ProtocolComment> getComment() {

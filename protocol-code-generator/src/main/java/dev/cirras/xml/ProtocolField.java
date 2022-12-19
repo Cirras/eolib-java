@@ -19,9 +19,6 @@ public class ProtocolField {
 
   @XmlAttribute private String length;
 
-  @XmlAttribute(name = "length-offset")
-  private int lengthOffset;
-
   @XmlAttribute private boolean padded;
 
   @XmlAttribute private boolean optional;
@@ -42,10 +39,6 @@ public class ProtocolField {
 
   public String getLength() {
     return length;
-  }
-
-  public int getLengthOffset() {
-    return lengthOffset;
   }
 
   public boolean isPadded() {

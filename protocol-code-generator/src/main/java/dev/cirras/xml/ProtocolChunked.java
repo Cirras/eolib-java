@@ -11,6 +11,7 @@ public class ProtocolChunked {
   @XmlElements({
     @XmlElement(name = "field", type = ProtocolField.class),
     @XmlElement(name = "array", type = ProtocolArray.class),
+    @XmlElement(name = "length", type = ProtocolLength.class),
     @XmlElement(name = "dummy", type = ProtocolDummy.class),
     @XmlElement(name = "switch", type = ProtocolSwitch.class),
     @XmlElement(name = "chunked", type = ProtocolChunked.class),

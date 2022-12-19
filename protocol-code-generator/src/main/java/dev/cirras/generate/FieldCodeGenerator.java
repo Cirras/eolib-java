@@ -30,13 +30,14 @@ class FieldCodeGenerator {
   private final String name;
   private final String typeString;
   private final String lengthString;
-  private final int lengthOffset;
   private final boolean optional;
   private final boolean padded;
   private final String hardcodedValue;
   private final String comment;
-  private final boolean array;
+  private final boolean arrayField;
   private final boolean delimited;
+  private final boolean lengthField;
+  private final int offset;
 
   private FieldCodeGenerator(
       TypeFactory typeFactory,
@@ -45,38 +46,49 @@ class FieldCodeGenerator {
       String name,
       String typeString,
       String lengthString,
-      int lengthOffset,
       boolean padded,
       boolean optional,
       String hardcodedValue,
       String comment,
-      boolean array,
-      boolean delimited) {
+      boolean arrayField,
+      boolean delimited,
+      boolean lengthField,
+      int offset) {
     this.typeFactory = typeFactory;
     this.context = context;
     this.data = data;
     this.name = name;
     this.typeString = typeString;
     this.lengthString = lengthString;
-    this.lengthOffset = lengthOffset;
     this.padded = padded;
     this.optional = optional;
     this.hardcodedValue = hardcodedValue;
     this.comment = comment;
-    this.array = array;
+    this.arrayField = arrayField;
     this.delimited = delimited;
+    this.lengthField = lengthField;
+    this.offset = offset;
     this.validate();
   }
 
   private void validate() {
-    validateArray();
+    validateSpecialFields();
+    validateArrayField();
+    validateLengthField();
     validateUnnamedField();
     validateHardcodedValue();
     validateUniqueName();
+    validateLengthAttribute();
   }
 
-  private void validateArray() {
-    if (array) {
+  private void validateSpecialFields() {
+    if (arrayField && lengthField) {
+      throw new CodeGenerationError("A field cannot be both a length field and an array field.");
+    }
+  }
+
+  private void validateArrayField() {
+    if (arrayField) {
       if (name == null) {
         throw new CodeGenerationError("Array fields must specify a name.");
       }
@@ -86,6 +98,28 @@ class FieldCodeGenerator {
     } else {
       if (delimited) {
         throw new CodeGenerationError("Only arrays can be delimited.");
+      }
+    }
+  }
+
+  private void validateLengthField() {
+    if (lengthField) {
+      if (name == null) {
+        throw new CodeGenerationError("Length fields must specify a name.");
+      }
+      if (hardcodedValue != null) {
+        throw new CodeGenerationError("Length fields may not specify hardcoded values.");
+      }
+      Type type = getType();
+      if (!(type instanceof IntegerType)) {
+        throw new CodeGenerationError(
+            String.format(
+                "%s is not a numeric type, so it is not allowed for a length field.",
+                type.getName()));
+      }
+    } else {
+      if (offset != 0) {
+        throw new CodeGenerationError("Only length fields can have an offset.");
       }
     }
   }
@@ -113,14 +147,11 @@ class FieldCodeGenerator {
 
     if (type instanceof StringType) {
       Integer length = NumberUtils.tryParseInt(lengthString);
-      if (length != null) {
-        length += lengthOffset;
-        if (length != hardcodedValue.length()) {
-          throw new CodeGenerationError(
-              String.format(
-                  "Expected length of %d for hardcoded string value \"%s\"",
-                  length, hardcodedValue));
-        }
+      if (length != null && length != hardcodedValue.length()) {
+        throw new CodeGenerationError(
+            String.format(
+                "Expected length of %d for hardcoded string value \"%s\".",
+                length, hardcodedValue));
       }
     }
 
@@ -138,7 +169,28 @@ class FieldCodeGenerator {
     }
 
     if (context.getAccessibleFields().containsKey(name)) {
-      throw new CodeGenerationError(String.format("Cannot redefine %s field", name));
+      throw new CodeGenerationError(String.format("Cannot redefine %s field.", name));
+    }
+  }
+
+  private void validateLengthAttribute() {
+    if (lengthString == null) {
+      return;
+    }
+
+    if (!NumberUtils.isInteger(lengthString)
+        && context.getLengthFieldIsReferencedMap().get(lengthString) == null) {
+      throw new CodeGenerationError(
+          String.format(
+              "Length attribute \"%s\" must be a numeric literal, or refer to a length field.",
+              lengthString));
+    }
+
+    Boolean isAlreadyReferenced = context.getLengthFieldIsReferencedMap().get((lengthString));
+    if (Boolean.TRUE.equals(isAlreadyReferenced)) {
+      throw new CodeGenerationError(
+          String.format(
+              "Length field \"%s\" must not be referenced by multiple fields.", lengthString));
     }
   }
 
@@ -151,14 +203,20 @@ class FieldCodeGenerator {
     Type type = getType();
     TypeName javaTypeName = getJavaTypeName();
 
-    if (array) {
+    if (arrayField) {
       javaTypeName = ParameterizedTypeName.get(ClassName.get(List.class), javaTypeName);
     }
 
     context
         .getAccessibleFields()
-        .put(name, new ObjectCodeGenerator.FieldData(javaName, type, false));
+        .put(name, new ObjectCodeGenerator.FieldData(javaName, type, offset, arrayField));
     data.getTypeSpec().addField(javaTypeName, javaName, Modifier.PRIVATE);
+
+    if (lengthField) {
+      context.getLengthFieldIsReferencedMap().put(name, false);
+      // Don't generate accessors for length fields, the length value will be computed.
+      return;
+    }
 
     CodeBlock javadoc = getAccessorJavadoc();
 
@@ -177,7 +235,21 @@ class FieldCodeGenerator {
               .addJavadoc(javadoc)
               .addModifiers(Modifier.PUBLIC)
               .addParameter(javaTypeName, javaName)
-              .addStatement("this.$L = $L", javaName, javaName);
+              .addStatement("this.$1L = $1L", javaName);
+
+      if (context.getLengthFieldIsReferencedMap().containsKey(lengthString)) {
+        context.getLengthFieldIsReferencedMap().put(lengthString, true);
+        ObjectCodeGenerator.FieldData lengthFieldData =
+            context.getAccessibleFields().get(lengthString);
+        setter
+            .beginControlFlow("if (this.$L != null)", javaName)
+            .addStatement(
+                "this.$L = this.$L.$L",
+                lengthFieldData.getJavaName(),
+                javaName,
+                arrayField ? "size()" : "length()")
+            .endControlFlow();
+      }
 
       data.getTypeSpec().addMethod(setter.build());
     }
@@ -191,24 +263,8 @@ class FieldCodeGenerator {
     }
 
     CodeBlock.Builder notes = CodeBlock.builder();
-
-    String expression = getLengthExpression("this");
-    if (expression != null) {
-      String sizeDescription = "{@code " + expression + "}";
-      if (padded) {
-        sizeDescription += " or less";
-      }
-      String sizeName = array ? "Size" : "Length";
-      notes.add("<li>$L must be $L.\n", sizeName, sizeDescription);
-    }
-
-    Type type = getType();
-    if (type instanceof IntegerType) {
-      String valueDescription = array ? "Element value" : "Value";
-      int size = type.getFixedSize().orElseThrow(AssertionError::new);
-      long maxValue = type.getName().equals("byte") ? 255 : (long) Math.pow(253, size) - 1;
-      notes.add("<li>$L range is 0-$L.\n", valueDescription, maxValue);
-    }
+    notes.add(generateLengthNote());
+    notes.add(generateIntegerMaxSizeNote());
 
     if (!notes.isEmpty()) {
       if (!javadoc.isEmpty()) {
@@ -223,6 +279,42 @@ class FieldCodeGenerator {
     return javadoc.build();
   }
 
+  private CodeBlock generateLengthNote() {
+    CodeBlock.Builder note = CodeBlock.builder();
+    if (lengthString != null) {
+      String sizeDescription;
+      ObjectCodeGenerator.FieldData fieldData = context.getAccessibleFields().get(lengthString);
+      if (fieldData != null) {
+        long maxValue = getMaxValueOf((IntegerType) fieldData.getType()) + fieldData.getOffset();
+        sizeDescription = maxValue + " or less";
+      } else {
+        sizeDescription = "{@code " + lengthString + "}";
+        if (padded) {
+          sizeDescription += " or less";
+        }
+      }
+
+      String sizeName = arrayField ? "Size" : "Length";
+      note.add("<li>$L must be $L.\n", sizeName, sizeDescription);
+    }
+    return note.build();
+  }
+
+  private CodeBlock generateIntegerMaxSizeNote() {
+    CodeBlock.Builder note = CodeBlock.builder();
+    Type type = getType();
+    if (type instanceof IntegerType) {
+      String valueDescription = arrayField ? "Element value" : "Value";
+      note.add("<li>$L range is 0-$L.\n", valueDescription, getMaxValueOf((IntegerType) type));
+    }
+    return note.build();
+  }
+
+  private static long getMaxValueOf(IntegerType type) {
+    int size = type.getFixedSize().orElseThrow(AssertionError::new);
+    return type.getName().equals("byte") ? 255 : (long) Math.pow(253, size) - 1;
+  }
+
   void generateSerialize() {
     if (optional) {
       String javaName = NameUtils.snakeCaseToCamelCase(name);
@@ -231,9 +323,9 @@ class FieldCodeGenerator {
 
     generateSerializeLengthCheck();
 
-    if (array) {
+    if (arrayField) {
       String javaName = NameUtils.snakeCaseToCamelCase(name);
-      String arraySizeExpression = getLengthExpression("data");
+      String arraySizeExpression = getLengthExpression();
       if (arraySizeExpression == null) {
         arraySizeExpression = "data." + javaName + ".size()";
       }
@@ -248,7 +340,7 @@ class FieldCodeGenerator {
 
     data.getSerialize().add(getWriteStatement());
 
-    if (array) {
+    if (arrayField) {
       data.getSerialize().endControlFlow();
     }
 
@@ -262,15 +354,26 @@ class FieldCodeGenerator {
       return;
     }
 
-    String lengthExpression = getLengthExpression("data");
+    String lengthExpression;
+
+    ObjectCodeGenerator.FieldData fieldData = context.getAccessibleFields().get(lengthString);
+    if (fieldData != null) {
+      long maxValue = getMaxValueOf((IntegerType) fieldData.getType()) + fieldData.getOffset();
+      lengthExpression = Long.toString(maxValue);
+    } else {
+      lengthExpression = lengthString;
+    }
+
     if (lengthExpression == null) {
       return;
     }
 
     String javaName = NameUtils.snakeCaseToCamelCase(name);
-    String fieldLengthMethod = array ? "size()" : "length()";
-    String lengthCheckOperator = padded ? ">" : "!=";
-    String expectedLengthDescription = padded ? "%d or less" : "exactly %d";
+    String fieldLengthMethod = arrayField ? "size()" : "length()";
+    boolean variableSize = padded || fieldData != null;
+    String lengthCheckOperator = variableSize ? ">" : "!=";
+    String expectedLengthDescription = variableSize ? "%d or less" : "exactly %d";
+
     String errorMessage =
         "Expected "
             + javaName
@@ -313,10 +416,15 @@ class FieldCodeGenerator {
       valueExpression += " ? 1 : 0";
     }
 
+    String offsetExpression = getLengthOffsetExpression(-offset);
+    if (offsetExpression != null) {
+      valueExpression += offsetExpression;
+    }
+
     if (type instanceof BasicType) {
       return CodeBlock.builder()
           .addStatement(
-              getWriteStatementForBasicType((BasicType) type, getLengthExpression("data"), padded),
+              getWriteStatementForBasicType((BasicType) type, getLengthExpression(), padded),
               valueExpression)
           .build();
     } else if (type instanceof StructType) {
@@ -359,7 +467,7 @@ class FieldCodeGenerator {
       }
     } else {
       String fieldReference = "data." + NameUtils.snakeCaseToCamelCase(name);
-      if (array) {
+      if (arrayField) {
         fieldReference += ".get(i)";
       }
       return fieldReference;
@@ -398,7 +506,7 @@ class FieldCodeGenerator {
   }
 
   void generateDeserialize() {
-    if (array) {
+    if (arrayField) {
       generateDeserializeArray();
     } else {
       data.getDeserialize().add(getReadStatement());
@@ -406,7 +514,7 @@ class FieldCodeGenerator {
   }
 
   private void generateDeserializeArray() {
-    String arraySizeExpression = getLengthExpression("data");
+    String arraySizeExpression = getLengthExpression();
     if (arraySizeExpression == null && !delimited) {
       Optional<Integer> elementSize = getType().getFixedSize();
       if (elementSize.isPresent()) {
@@ -459,7 +567,7 @@ class FieldCodeGenerator {
 
     CodeBlock.Builder statement = CodeBlock.builder().add("$[");
 
-    if (array) {
+    if (arrayField) {
       String javaName = NameUtils.snakeCaseToCamelCase(name);
       statement.add("data.$L.add(", javaName);
     } else if (name != null) {
@@ -468,12 +576,12 @@ class FieldCodeGenerator {
     }
 
     if (type instanceof BasicType) {
-      String lengthExpression = getLengthExpression("data");
-      if (lengthExpression != null && lengthOffset != 0) {
-        lengthExpression = "java.lang.Math.max(" + lengthExpression + ", 0)";
-      }
       String readBasicType =
-          getReadStatementForBasicType((BasicType) type, lengthExpression, padded);
+          getReadStatementForBasicType((BasicType) type, getLengthExpression(), padded);
+      String offsetExpression = getLengthOffsetExpression(offset);
+      if (offsetExpression != null) {
+        readBasicType += offsetExpression;
+      }
       if (realType instanceof EnumType) {
         EnumType enumType = (EnumType) realType;
         TypeName enumTypeName = ClassName.get(enumType.getPackageName(), enumType.getName());
@@ -491,7 +599,7 @@ class FieldCodeGenerator {
       throw new AssertionError("Unhandled Type");
     }
 
-    if (array) {
+    if (arrayField) {
       statement.add(")");
     }
 
@@ -534,13 +642,13 @@ class FieldCodeGenerator {
 
   private Type getType() {
     Integer length;
-    if (array) {
+    if (arrayField) {
       // For array fields, "length" refers to the length of the array.
       length = null;
     } else {
       length = NumberUtils.tryParseInt(lengthString);
       if (length != null) {
-        length += lengthOffset;
+        length += offset;
       }
     }
     return typeFactory.getType(typeString, length);
@@ -565,7 +673,7 @@ class FieldCodeGenerator {
     return result;
   }
 
-  private String getLengthExpression(String objectName) {
+  private String getLengthExpression() {
     if (lengthString == null) {
       return null;
     }
@@ -576,13 +684,17 @@ class FieldCodeGenerator {
         throw new CodeGenerationError(
             String.format("Referenced %s field is not accessible.", expression));
       }
-      expression = objectName + "." + fieldData.getJavaName();
-    }
-    if (lengthOffset != 0) {
-      String operator = lengthOffset > 0 ? "+" : "-";
-      expression += String.format(" %s %d", operator, Math.abs(lengthOffset));
+      expression = "data." + fieldData.getJavaName();
     }
     return expression;
+  }
+
+  private static String getLengthOffsetExpression(int offset) {
+    if (offset != 0) {
+      String operator = offset > 0 ? "+" : "-";
+      return String.format(" %s %d", operator, Math.abs(offset));
+    }
+    return null;
   }
 
   static FieldCodeGenerator.Builder builder(
@@ -597,12 +709,13 @@ class FieldCodeGenerator {
     private String name;
     private String type;
     private String length;
-    private int lengthOffset;
+    private int offset;
     private boolean padded;
     private boolean optional;
     private String hardcodedValue;
     private String comment;
-    private boolean array;
+    private boolean arrayField;
+    private boolean lengthField;
     private boolean delimited;
 
     private Builder(
@@ -629,11 +742,6 @@ class FieldCodeGenerator {
       return this;
     }
 
-    Builder lengthOffset(int lengthOffset) {
-      this.lengthOffset = lengthOffset;
-      return this;
-    }
-
     Builder padded(boolean padded) {
       this.padded = padded;
       return this;
@@ -654,13 +762,23 @@ class FieldCodeGenerator {
       return this;
     }
 
-    Builder array(boolean array) {
-      this.array = array;
+    Builder arrayField(boolean arrayField) {
+      this.arrayField = arrayField;
       return this;
     }
 
     Builder delimited(boolean delimited) {
       this.delimited = delimited;
+      return this;
+    }
+
+    Builder lengthField(boolean lengthField) {
+      this.lengthField = lengthField;
+      return this;
+    }
+
+    Builder offset(int offset) {
+      this.offset = offset;
       return this;
     }
 
@@ -675,13 +793,14 @@ class FieldCodeGenerator {
           name,
           type,
           length,
-          lengthOffset,
           padded,
           optional,
           hardcodedValue,
           comment,
-          array,
-          delimited);
+          arrayField,
+          delimited,
+          lengthField,
+          offset);
     }
   }
 }

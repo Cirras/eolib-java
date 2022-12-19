@@ -240,10 +240,6 @@ public final class TypeFactory {
 
   private Integer calculateFixedStructFieldSize(ProtocolField protocolField) {
     Integer length = NumberUtils.tryParseInt(protocolField.getLength());
-    if (length != null) {
-      length = Math.max(length + protocolField.getLengthOffset(), 0);
-    }
-
     Type type = getType(protocolField.getType(), length);
     Optional<Integer> fieldSize = type.getFixedSize();
     if (!fieldSize.isPresent()) {

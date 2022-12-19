@@ -15,6 +15,7 @@ import dev.cirras.xml.ProtocolChunked;
 import dev.cirras.xml.ProtocolComment;
 import dev.cirras.xml.ProtocolDummy;
 import dev.cirras.xml.ProtocolField;
+import dev.cirras.xml.ProtocolLength;
 import dev.cirras.xml.ProtocolSwitch;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,8 @@ final class ObjectCodeGenerator {
       generateField((ProtocolField) instruction);
     } else if (instruction instanceof ProtocolArray) {
       generateArray((ProtocolArray) instruction);
+    } else if (instruction instanceof ProtocolLength) {
+      generateLength((ProtocolLength) instruction);
     } else if (instruction instanceof ProtocolDummy) {
       generateDummy((ProtocolDummy) instruction);
     } else if (instruction instanceof ProtocolSwitch) {
@@ -56,16 +59,13 @@ final class ObjectCodeGenerator {
   }
 
   private void generateField(ProtocolField protocolField) {
-    if (context.isReachedOptionalField() && !protocolField.isOptional()) {
-      throw new CodeGenerationError("Optional fields may not be followed by non-optional fields.");
-    }
+    checkOptionalField(protocolField.isOptional());
 
     FieldCodeGenerator fieldCodeGenerator =
         FieldCodeGenerator.builder(typeFactory, context, data)
             .name(protocolField.getName())
             .type(protocolField.getType())
             .length(protocolField.getLength())
-            .lengthOffset(protocolField.getLengthOffset())
             .padded(protocolField.isPadded())
             .optional(protocolField.isOptional())
             .hardcodedValue(protocolField.getValue())
@@ -87,9 +87,7 @@ final class ObjectCodeGenerator {
   }
 
   private void generateArray(ProtocolArray protocolArray) {
-    if (context.isReachedOptionalField() && !protocolArray.isOptional()) {
-      throw new CodeGenerationError("Optional fields may not be followed by non-optional fields.");
-    }
+    checkOptionalField(protocolArray.isOptional());
 
     if (protocolArray.isDelimited() && !context.isChunkedReadingEnabled()) {
       throw new CodeGenerationError(
@@ -102,7 +100,6 @@ final class ObjectCodeGenerator {
             .name(protocolArray.getName())
             .type(protocolArray.getType())
             .length(protocolArray.getLength())
-            .lengthOffset(protocolArray.getLengthOffset())
             .optional(protocolArray.isOptional())
             .comment(
                 protocolArray
@@ -110,7 +107,7 @@ final class ObjectCodeGenerator {
                     .map(ProtocolComment::getText)
                     .map(CommentUtils::formatComment)
                     .orElse(null))
-            .array(true)
+            .arrayField(true)
             .delimited(protocolArray.isDelimited())
             .build();
 
@@ -120,6 +117,39 @@ final class ObjectCodeGenerator {
 
     if (protocolArray.isOptional()) {
       context.setReachedOptionalField(true);
+    }
+  }
+
+  private void generateLength(ProtocolLength protocolLength) {
+    checkOptionalField(protocolLength.isOptional());
+
+    FieldCodeGenerator fieldCodeGenerator =
+        FieldCodeGenerator.builder(typeFactory, context, data)
+            .name(protocolLength.getName())
+            .type(protocolLength.getType())
+            .offset(protocolLength.getOffset())
+            .lengthField(true)
+            .optional(protocolLength.isOptional())
+            .comment(
+                protocolLength
+                    .getComment()
+                    .map(ProtocolComment::getText)
+                    .map(CommentUtils::formatComment)
+                    .orElse(null))
+            .build();
+
+    fieldCodeGenerator.generateField();
+    fieldCodeGenerator.generateSerialize();
+    fieldCodeGenerator.generateDeserialize();
+
+    if (protocolLength.isOptional()) {
+      context.setReachedOptionalField(true);
+    }
+  }
+
+  private void checkOptionalField(boolean optional) {
+    if (context.isReachedOptionalField() && !optional) {
+      throw new CodeGenerationError("Optional fields may not be followed by non-optional fields.");
     }
   }
 
@@ -250,12 +280,14 @@ final class ObjectCodeGenerator {
   static final class FieldData {
     private final String javaName;
     private final Type type;
-    private final boolean isArray;
+    private final int offset;
+    private final boolean array;
 
-    public FieldData(String javaName, Type type, boolean isArray) {
+    public FieldData(String javaName, Type type, int offset, boolean array) {
       this.javaName = javaName;
       this.type = type;
-      this.isArray = isArray;
+      this.offset = offset;
+      this.array = array;
     }
 
     public String getJavaName() {
@@ -266,8 +298,12 @@ final class ObjectCodeGenerator {
       return type;
     }
 
+    public int getOffset() {
+      return offset;
+    }
+
     public boolean isArray() {
-      return isArray;
+      return array;
     }
   }
 
@@ -276,12 +312,14 @@ final class ObjectCodeGenerator {
     private boolean reachedOptionalField;
     private boolean reachedDummy;
     private final Map<String, FieldData> accessibleFields;
+    private final HashMap<String, Boolean> lengthFieldIsReferenced;
 
     Context() {
       setChunkedReadingEnabled(false);
       setReachedOptionalField(false);
       setReachedDummy(false);
       accessibleFields = new HashMap<>();
+      lengthFieldIsReferenced = new HashMap<>();
     }
 
     Context(Context other) {
@@ -289,6 +327,7 @@ final class ObjectCodeGenerator {
       setReachedOptionalField(other.isReachedOptionalField());
       setReachedDummy(other.isReachedDummy());
       accessibleFields = new HashMap<>(other.getAccessibleFields());
+      lengthFieldIsReferenced = new HashMap<>(other.getLengthFieldIsReferencedMap());
     }
 
     public boolean isChunkedReadingEnabled() {
@@ -305,6 +344,10 @@ final class ObjectCodeGenerator {
 
     public Map<String, FieldData> getAccessibleFields() {
       return accessibleFields;
+    }
+
+    public Map<String, Boolean> getLengthFieldIsReferencedMap() {
+      return lengthFieldIsReferenced;
     }
 
     public void setChunkedReadingEnabled(boolean chunkedReadingEnabled) {

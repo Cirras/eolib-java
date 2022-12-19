@@ -103,6 +103,7 @@ final class SwitchCodeGenerator {
 
     ObjectCodeGenerator.Context caseContext = new ObjectCodeGenerator.Context(context);
     caseContext.getAccessibleFields().clear();
+    caseContext.getLengthFieldIsReferencedMap().clear();
 
     ClassName caseDataTypeName = data.getTypeName().nestedClass(caseDataName);
     String caseDataFieldName = getCaseDataFieldName();
