@@ -2,6 +2,15 @@ package dev.cirras.data;
 
 import java.nio.charset.Charset;
 
+/**
+ * A class for reading EO data from a sequence of bytes.
+ *
+ * <p>{@code EOReader} features a chunked reading mode, which is important for accurate emulation of
+ * the official game client.
+ *
+ * @see <a href="https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md">Chunked
+ *     Reading</a>
+ */
 public final class EOReader {
   private final byte[] data;
   private int position = 0;

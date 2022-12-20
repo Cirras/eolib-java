@@ -2,11 +2,7 @@ package dev.cirras.data;
 
 import java.nio.charset.Charset;
 
-/*
- * EOWriter is a utility class for writing data to a byte array.
- * It provides methods for adding different types of data to the array,
- * such as raw bytes, encoded numbers, and strings.
- */
+/** A class for writing EO data to a sequence of bytes. */
 public final class EOWriter {
   private byte[] data = new byte[16];
   private int length = 0;
@@ -26,7 +22,7 @@ public final class EOWriter {
   }
 
   /**
-   * Adds an array of raw bytes to the writer data
+   * Adds an array of raw bytes to the writer data.
    *
    * @param bytes the array of bytes to add
    */
@@ -163,7 +159,7 @@ public final class EOWriter {
   }
 
   /**
-   * Gets the length of the writer data
+   * Gets the length of the writer data.
    *
    * @return the length of the writer data
    */
