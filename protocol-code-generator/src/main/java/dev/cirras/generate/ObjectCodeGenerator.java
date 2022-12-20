@@ -447,7 +447,7 @@ final class ObjectCodeGenerator {
               .addModifiers(Modifier.PUBLIC)
               .addField(int.class, "byteSize", Modifier.PRIVATE)
               .addMethod(
-                  MethodSpec.methodBuilder("getByteSize")
+                  MethodSpec.methodBuilder("byteSize")
                       .addJavadoc("Returns the size of the data that this was deserialized from.")
                       .addJavadoc("\n\n")
                       .addJavadoc(
