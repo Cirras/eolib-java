@@ -19,6 +19,7 @@ import dev.cirras.xml.ProtocolLength;
 import dev.cirras.xml.ProtocolSwitch;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.lang.model.element.Modifier;
 
 final class ObjectCodeGenerator {
@@ -80,6 +81,7 @@ final class ObjectCodeGenerator {
     fieldCodeGenerator.generateField();
     fieldCodeGenerator.generateSerialize();
     fieldCodeGenerator.generateDeserialize();
+    fieldCodeGenerator.generateObjectMethods();
 
     if (protocolField.isOptional()) {
       context.setReachedOptionalField(true);
@@ -114,6 +116,7 @@ final class ObjectCodeGenerator {
     fieldCodeGenerator.generateField();
     fieldCodeGenerator.generateSerialize();
     fieldCodeGenerator.generateDeserialize();
+    fieldCodeGenerator.generateObjectMethods();
 
     if (protocolArray.isOptional()) {
       context.setReachedOptionalField(true);
@@ -141,6 +144,7 @@ final class ObjectCodeGenerator {
     fieldCodeGenerator.generateField();
     fieldCodeGenerator.generateSerialize();
     fieldCodeGenerator.generateDeserialize();
+    fieldCodeGenerator.generateObjectMethods();
 
     if (protocolLength.isOptional()) {
       context.setReachedOptionalField(true);
@@ -198,6 +202,7 @@ final class ObjectCodeGenerator {
     context.setReachedDummy(reachedDummy);
 
     switchCodeGenerator.generateSwitchEnd();
+    switchCodeGenerator.generateObjectMethods();
   }
 
   private void generateChunked(ProtocolChunked protocolChunked) {
@@ -271,10 +276,72 @@ final class ObjectCodeGenerator {
         .build();
   }
 
+  private MethodSpec generateHashCodeMethod() {
+    CodeBlock hashCodeExpression = data.getHashCode().build();
+    if (hashCodeExpression.isEmpty()) {
+      hashCodeExpression = CodeBlock.of(", $T.class.hashCode()", data.getTypeName());
+    }
+
+    return MethodSpec.methodBuilder("hashCode")
+        .addJavadoc("Returns a hash code value for the object.")
+        .addJavadoc("\n\n")
+        .addJavadoc("@return a hash code value for this object")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .returns(int.class)
+        .addStatement("return $T.hash(byteSize$L)", Objects.class, hashCodeExpression)
+        .build();
+  }
+
+  private MethodSpec generateEqualsMethod() {
+    MethodSpec.Builder equals =
+        MethodSpec.methodBuilder("equals")
+            .addJavadoc("Indicates whether some other object is \"equal to\" this one.")
+            .addJavadoc("\n\n")
+            .addJavadoc("@param obj the reference object with which to compare\n")
+            .addJavadoc(
+                "@return true if this object is the same as the obj argument; false otherwise")
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(Object.class, "obj")
+            .returns(boolean.class)
+            .beginControlFlow("if (this == obj)")
+            .addStatement("return true")
+            .endControlFlow()
+            .beginControlFlow("if (obj == null || getClass() != obj.getClass())")
+            .addStatement("return false")
+            .endControlFlow()
+            .addStatement("$1T other = ($1T) obj", data.getTypeName())
+            .addStatement(
+                "return $T.equals(byteSize, other.byteSize)$L",
+                Objects.class,
+                data.getEquals().build());
+
+    return equals.build();
+  }
+
+  private MethodSpec generateToStringMethod() {
+    return MethodSpec.methodBuilder("toString")
+        .addJavadoc("Returns a string representation of the object.")
+        .addJavadoc("\n\n")
+        .addJavadoc("@return a string representation of the object")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .returns(String.class)
+        .addCode("  return $S +\n", data.getTypeName().simpleName() + "{")
+        .addCode("         \"byteSize=\" + byteSize +\n")
+        .addCode(data.getToString().build())
+        .addCode("         $S;\n", "}")
+        .build();
+  }
+
   TypeSpec.Builder getTypeSpec() {
     return JavaPoetUtils.cloneTypeSpecBuilder(data.getTypeSpec())
         .addMethod(generateSerializeMethod())
-        .addMethod(generateDeserializeMethod());
+        .addMethod(generateDeserializeMethod())
+        .addMethod(generateHashCodeMethod())
+        .addMethod(generateEqualsMethod())
+        .addMethod(generateToStringMethod());
   }
 
   static final class FieldData {
@@ -368,6 +435,9 @@ final class ObjectCodeGenerator {
     private final TypeSpec.Builder typeSpec;
     private final CodeBlock.Builder serialize;
     private final CodeBlock.Builder deserialize;
+    private final CodeBlock.Builder toString;
+    private final CodeBlock.Builder equals;
+    private final CodeBlock.Builder hashCode;
 
     private Data(ClassName typeName) {
       this.typeName = typeName;
@@ -391,6 +461,9 @@ final class ObjectCodeGenerator {
                       .build());
       this.serialize = CodeBlock.builder();
       this.deserialize = CodeBlock.builder();
+      this.toString = CodeBlock.builder();
+      this.equals = CodeBlock.builder();
+      this.hashCode = CodeBlock.builder();
     }
 
     public ClassName getTypeName() {
@@ -407,6 +480,18 @@ final class ObjectCodeGenerator {
 
     public CodeBlock.Builder getDeserialize() {
       return deserialize;
+    }
+
+    public CodeBlock.Builder getToString() {
+      return toString;
+    }
+
+    public CodeBlock.Builder getEquals() {
+      return equals;
+    }
+
+    public CodeBlock.Builder getHashCode() {
+      return hashCode;
     }
   }
 }

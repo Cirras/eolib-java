@@ -17,6 +17,7 @@ import dev.cirras.xml.ProtocolChunked;
 import dev.cirras.xml.ProtocolComment;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.lang.model.element.Modifier;
 
@@ -84,6 +85,17 @@ final class SwitchCodeGenerator {
   void generateSwitchEnd() {
     data.getSerialize().endControlFlow();
     data.getDeserialize().endControlFlow();
+  }
+
+  void generateObjectMethods() {
+    ObjectCodeGenerator.FieldData fieldData = getFieldData();
+    String javaName = fieldData.getJavaName();
+
+    data.getEquals().add(" && $1T.equals($2L, other.$2L)", Objects.class, javaName);
+    data.getHashCode().add(", $L", javaName);
+
+    String stringPart = ", " + javaName + "=";
+    data.getToString().add("         $S + $L +\n", stringPart, javaName);
   }
 
   ObjectCodeGenerator.Context generateCase(ProtocolCase protocolCase) {

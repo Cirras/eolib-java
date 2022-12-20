@@ -20,6 +20,7 @@ import dev.cirras.util.NameUtils;
 import dev.cirras.util.NumberUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.lang.model.element.Modifier;
 
@@ -653,6 +654,19 @@ class FieldCodeGenerator {
       default:
         throw new AssertionError("Unhandled BasicType");
     }
+  }
+
+  void generateObjectMethods() {
+    if (name == null) {
+      return;
+    }
+
+    String javaName = NameUtils.snakeCaseToCamelCase(name);
+    data.getEquals().add(" && $1T.equals($2L, other.$2L)", Objects.class, javaName);
+    data.getHashCode().add(", $L", javaName);
+
+    String stringPart = ", " + javaName + "=";
+    data.getToString().add("         $S + $L +\n", stringPart, javaName);
   }
 
   private Type getType() {
