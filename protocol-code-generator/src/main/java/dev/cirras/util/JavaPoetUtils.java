@@ -27,4 +27,8 @@ public final class JavaPoetUtils {
   public static ClassName getGeneratedAnnotationTypeName() {
     return ClassName.get("dev.cirras.protocol", "Generated");
   }
+
+  public static ClassName getPacketTypeName() {
+    return ClassName.get("dev.cirras.protocol.net", "Packet");
+  }
 }

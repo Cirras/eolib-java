@@ -329,8 +329,9 @@ public final class CodeGenerator {
     TypeSpec.Builder typeSpec =
         objectCodeGenerator
             .getTypeSpec()
+            .addSuperinterface(JavaPoetUtils.getPacketTypeName())
             .addMethod(
-                MethodSpec.methodBuilder("family")
+                MethodSpec.methodBuilder("packetFamily")
                     .addJavadoc("Returns the packet family associated with this type.")
                     .addJavadoc("\n\n")
                     .addJavadoc("@return the packet family associated with this type")
@@ -339,13 +340,34 @@ public final class CodeGenerator {
                     .addStatement("return $T.$L", familyTypeName, familyValueJavaName)
                     .build())
             .addMethod(
-                MethodSpec.methodBuilder("action")
+                MethodSpec.methodBuilder("packetAction")
                     .addJavadoc("Returns the packet action associated with this type.")
                     .addJavadoc("\n\n")
                     .addJavadoc("@return the packet action associated with this type")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(actionTypeName)
                     .addStatement("return $T.$L", actionTypeName, actionValueJavaName)
+                    .build())
+            .addMethod(
+                MethodSpec.methodBuilder("family")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(familyTypeName)
+                    .addStatement("return $T.packetFamily()", className)
+                    .build())
+            .addMethod(
+                MethodSpec.methodBuilder("action")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(actionTypeName)
+                    .addStatement("return $T.packetAction()", className)
+                    .build())
+            .addMethod(
+                MethodSpec.methodBuilder("serialize")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(JavaPoetUtils.getWriterTypeName(), "writer")
+                    .addStatement("$T.serialize(writer, this)", className)
                     .build());
 
     protocolPacket
