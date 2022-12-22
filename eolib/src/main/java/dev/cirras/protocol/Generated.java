@@ -9,6 +9,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/** The {@code Generated} annotation is used to mark source code that has been generated. */
 @Documented
 @Retention(RUNTIME)
 @Target({TYPE, METHOD, CONSTRUCTOR})
