@@ -6,20 +6,24 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 class PingSequenceStartTest {
+  private static final int VALUE = 1267;
+  private static final int SEQ1 = 1497;
+  private static final int SEQ2 = 230;
+
   @Test
   void testFromValue() {
-    PingSequenceStart sequenceStart = PingSequenceStart.fromPingValues(1497, 230);
-    assertThat(sequenceStart.getValue()).isEqualTo(1267);
-    assertThat(sequenceStart.getSeq1()).isEqualTo(1497);
-    assertThat(sequenceStart.getSeq2()).isEqualTo(230);
+    PingSequenceStart sequenceStart = PingSequenceStart.fromPingValues(SEQ1, SEQ2);
+    assertThat(sequenceStart.getValue()).isEqualTo(VALUE);
+    assertThat(sequenceStart.getSeq1()).isEqualTo(SEQ1);
+    assertThat(sequenceStart.getSeq2()).isEqualTo(SEQ2);
   }
 
   @Test
   void testGenerate() {
     Random random = new Random(123);
     PingSequenceStart sequenceStart = PingSequenceStart.generate(random);
-    assertThat(sequenceStart.getValue()).isEqualTo(1267);
-    assertThat(sequenceStart.getSeq1()).isEqualTo(1497);
-    assertThat(sequenceStart.getSeq2()).isEqualTo(230);
+    assertThat(sequenceStart.getValue()).isEqualTo(VALUE);
+    assertThat(sequenceStart.getSeq1()).isEqualTo(SEQ1);
+    assertThat(sequenceStart.getSeq2()).isEqualTo(SEQ2);
   }
 }
