@@ -20,8 +20,11 @@ class InitSequenceStartTest {
 
   @Test
   void testGenerate() {
-    Random random = new Random(123);
+    final int seed = 123;
+    Random random = new Random(seed);
+
     InitSequenceStart sequenceStart = InitSequenceStart.generate(random);
+
     assertThat(sequenceStart.getValue()).isEqualTo(VALUE);
     assertThat(sequenceStart.getSeq1()).isEqualTo(SEQ1);
     assertThat(sequenceStart.getSeq2()).isEqualTo(SEQ2);

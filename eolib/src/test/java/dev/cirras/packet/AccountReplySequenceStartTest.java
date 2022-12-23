@@ -14,8 +14,11 @@ class AccountReplySequenceStartTest {
 
   @Test
   void testGenerate() {
-    Random random = new Random(123);
+    final int seed = 123;
+    Random random = new Random(seed);
+
     AccountReplySequenceStart sequenceStart = AccountReplySequenceStart.generate(random);
+
     assertThat(sequenceStart.getValue()).isEqualTo(62);
   }
 }
