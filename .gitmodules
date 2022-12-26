@@ -1,3 +1,4 @@
 [submodule "eolib/src/main/eo-protocol"]
 	path = eolib/src/main/eo-protocol
 	url = https://github.com/Cirras/eo-protocol.git
+	branch = master
