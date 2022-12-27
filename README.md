@@ -19,8 +19,9 @@ Read and write the following EO data structures:
 Utilities:
 - Data reader
 - Data writer
-- Number encode/decode
-- String encode/decode
+- Number encoding
+- String encoding
+- Data encryption
 - Packet sequencer
 
 ## Requirements
