@@ -17,10 +17,11 @@ Read and write the following EO data structures:
 - Endless Class Files (ECF)
 
 Utilities:
-- EO data reader
-- EO data writer
-- EO number encode/decode
-- EO string encode/decode
+- Data reader
+- Data writer
+- Number encode/decode
+- String encode/decode
+- Packet sequencer
 
 ## Requirements
 - JDK 11+
