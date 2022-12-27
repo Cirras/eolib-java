@@ -35,12 +35,6 @@
     </developer>
   </developers>
 
-  <scm>
-    <connection>scm:git:git://github.com/cirras/eolib-java.git</connection>
-    <developerConnection>scm:git:ssh://github.com:cirras/eolib-java.git</developerConnection>
-    <url>http://github.com/cirras/eolib-java/tree/master</url>
-  </scm>
-
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

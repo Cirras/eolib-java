@@ -14,6 +14,12 @@
     <module>eolib</module>
   </modules>
 
+  <scm>
+    <connection>scm:git:git://github.com/cirras/eolib-java.git</connection>
+    <developerConnection>scm:git:ssh://github.com:cirras/eolib-java.git</developerConnection>
+    <url>http://github.com/cirras/eolib-java/tree/master</url>
+  </scm>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -102,6 +108,31 @@
         <configuration>
           <doclint>none</doclint>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>1.3.0</version>
+        <configuration>
+          <outputDirectory>${project.build.directory}</outputDirectory>
+          <flattenMode>ossrh</flattenMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten.clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
