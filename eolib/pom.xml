@@ -12,6 +12,34 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>EOLib</name>
+  <description>Core library for writing applications related to Endless Online.</description>
+  <url>https://github.com/Cirras/eolib-java</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>cirras</id>
+      <name>Jonah Jeleniewski</name>
+      <email>jonahjeleniewski@gmail.com</email>
+      <url>https://github.com/cirras</url>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/cirras/eolib-java.git</connection>
+    <developerConnection>scm:git:ssh://github.com:cirras/eolib-java.git</developerConnection>
+    <url>http://github.com/cirras/eolib-java/tree/master</url>
+  </scm>
 
   <dependencies>
     <dependency>
