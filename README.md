@@ -4,7 +4,7 @@
 [![Build](https://github.com/Cirras/eolib-java/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/Cirras/eolib-java/actions/workflows/build.yml)
 [![Javadoc](https://github.com/Cirras/eolib-java/actions/workflows/javadoc.yml/badge.svg?event=push)](https://github.com/Cirras/eolib-java/actions/workflows/javadoc.yml)
 
-A Java library for working with the Endless Online network protocol and data files.
+A core Java library for writing applications related to Endless Online.
 
 ## Features
 Read and write the following EO data structures:
