@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.0.0-RC1 - 2022-12-28
+
 ### Added
 
 - Support for EO data structures:
@@ -24,3 +26,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - String encoding
   - Data encryption
   - Packet sequencer
+
+[Unreleased]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC1...HEAD
