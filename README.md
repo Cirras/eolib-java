@@ -2,7 +2,7 @@
 [![quality gate](https://sonarcloud.io/api/project_badges/measure?project=Cirras_eolib-java&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Cirras_eolib-java)
 [![format](https://github.com/Cirras/eolib-java/actions/workflows/format.yml/badge.svg?event=push)](https://github.com/Cirras/eolib-java/actions/workflows/format.yml)
 [![build](https://github.com/Cirras/eolib-java/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/Cirras/eolib-java/actions/workflows/build.yml)
-[![javadoc](https://github.com/Cirras/eolib-java/actions/workflows/javadoc.yml/badge.svg?event=push)](https://github.com/Cirras/eolib-java/actions/workflows/javadoc.yml)
+[![javadoc](https://javadoc.io/badge2/dev.cirras/eolib/javadoc.svg)](https://javadoc.io/doc/dev.cirras/eolib)
 
 A core Java library for writing applications related to Endless Online.
 
