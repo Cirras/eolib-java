@@ -14,7 +14,7 @@ public final class EncryptionUtils {
    * <p>Example:
    *
    * <pre>
-   *   {1, 2, 3, 4, 5} -> {0, 5, 1, 4, 2, 3}
+   *   {1, 2, 3, 4, 5} → {0, 5, 1, 4, 2, 3}
    * </pre>
    *
    * <p>This is an in-place operation.
@@ -51,7 +51,7 @@ public final class EncryptionUtils {
    * <p>Example:
    *
    * <pre>
-   *   {1, 2, 3, 4, 5} -> {0, 2, 4, 5, 3, 1}
+   *   {1, 2, 3, 4, 5} → {0, 2, 4, 5, 3, 1}
    * </pre>
    *
    * <p>This is an in-place operation.
@@ -89,7 +89,7 @@ public final class EncryptionUtils {
    * <p>Example:
    *
    * <pre>
-   *   {0, 1, 127, 128, 129, 254, 255} -> {0, 129, 255, 128, 1, 126, 127}
+   *   {0, 1, 127, 128, 129, 254, 255} → {0, 129, 255, 128, 1, 126, 127}
    * </pre>
    *
    * <p>This is an in-place operation.
@@ -113,7 +113,7 @@ public final class EncryptionUtils {
    *
    * <pre>
    *   multiple = 3
-   *   {10, 21, 27} -> {10, 27, 21}
+   *   {10, 21, 27} → {10, 27, 21}
    * </pre>
    *
    * <p>This is an in-place operation.
