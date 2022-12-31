@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `SequenceStart.zero()` method to create a `SequenceStart` instance with a value of zero.
+- More reserved item types and subtypes.
 
 ## 1.0.0-RC1 - 2022-12-28
 
