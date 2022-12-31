@@ -382,17 +382,17 @@ final class ObjectCodeGenerator {
     private final HashMap<String, Boolean> lengthFieldIsReferenced;
 
     Context() {
-      setChunkedReadingEnabled(false);
-      setReachedOptionalField(false);
-      setReachedDummy(false);
+      chunkedReadingEnabled = false;
+      reachedOptionalField = false;
+      reachedDummy = false;
       accessibleFields = new HashMap<>();
       lengthFieldIsReferenced = new HashMap<>();
     }
 
     Context(Context other) {
-      setChunkedReadingEnabled(other.isChunkedReadingEnabled());
-      setReachedOptionalField(other.isReachedOptionalField());
-      setReachedDummy(other.isReachedDummy());
+      chunkedReadingEnabled = other.isChunkedReadingEnabled();
+      reachedOptionalField = other.isReachedOptionalField();
+      reachedDummy = other.isReachedDummy();
       accessibleFields = new HashMap<>(other.getAccessibleFields());
       lengthFieldIsReferenced = new HashMap<>(other.getLengthFieldIsReferencedMap());
     }
