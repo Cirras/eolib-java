@@ -170,15 +170,16 @@ final class ObjectCodeGenerator {
                     .orElse(null))
             .build();
 
-    data.getSerialize().beginControlFlow("if (writer.getLength() == 0)");
+    data.getSerialize().beginControlFlow("if (writer.getLength() == oldWriterLength)");
     fieldCodeGenerator.generateSerialize();
     data.getSerialize().endControlFlow();
 
-    data.getDeserialize().beginControlFlow("if (data.byteSize == 0)");
+    data.getDeserialize().beginControlFlow("if (reader.getPosition() == readerStartPosition)");
     fieldCodeGenerator.generateDeserialize();
     data.getDeserialize().endControlFlow();
 
     context.setReachedDummy(true);
+    context.setNeedsOldWriterLengthVariable(true);
   }
 
   private void generateSwitch(ProtocolSwitch protocolSwitch) {
@@ -235,6 +236,15 @@ final class ObjectCodeGenerator {
   }
 
   private MethodSpec generateSerializeMethod() {
+    CodeBlock methodCode = data.getSerialize().build();
+    if (context.isNeedsOldWriterLengthVariable()) {
+      methodCode =
+          CodeBlock.builder()
+              .addStatement("int oldWriterLength = writer.getLength()")
+              .add(methodCode)
+              .build();
+    }
+
     return MethodSpec.methodBuilder("serialize")
         .addJavadoc(
             "Serializes an instance of {@code $T} to the provided {@code $T}.",
@@ -246,7 +256,7 @@ final class ObjectCodeGenerator {
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         .addParameter(JavaPoetUtils.getWriterTypeName(), "writer")
         .addParameter(data.getTypeName(), "data")
-        .addCode(data.getSerialize().build())
+        .addCode(methodCode)
         .build();
   }
 
@@ -378,6 +388,7 @@ final class ObjectCodeGenerator {
     private boolean chunkedReadingEnabled;
     private boolean reachedOptionalField;
     private boolean reachedDummy;
+    private boolean needsOldWriterLengthVariable;
     private final Map<String, FieldData> accessibleFields;
     private final HashMap<String, Boolean> lengthFieldIsReferenced;
 
@@ -385,6 +396,7 @@ final class ObjectCodeGenerator {
       chunkedReadingEnabled = false;
       reachedOptionalField = false;
       reachedDummy = false;
+      needsOldWriterLengthVariable = false;
       accessibleFields = new HashMap<>();
       lengthFieldIsReferenced = new HashMap<>();
     }
@@ -393,6 +405,7 @@ final class ObjectCodeGenerator {
       chunkedReadingEnabled = other.isChunkedReadingEnabled();
       reachedOptionalField = other.isReachedOptionalField();
       reachedDummy = other.isReachedDummy();
+      needsOldWriterLengthVariable = other.isNeedsOldWriterLengthVariable();
       accessibleFields = new HashMap<>(other.getAccessibleFields());
       lengthFieldIsReferenced = new HashMap<>(other.getLengthFieldIsReferencedMap());
     }
@@ -407,6 +420,10 @@ final class ObjectCodeGenerator {
 
     public boolean isReachedDummy() {
       return reachedDummy;
+    }
+
+    public boolean isNeedsOldWriterLengthVariable() {
+      return needsOldWriterLengthVariable;
     }
 
     public Map<String, FieldData> getAccessibleFields() {
@@ -427,6 +444,10 @@ final class ObjectCodeGenerator {
 
     public void setReachedDummy(boolean reachedDummy) {
       this.reachedDummy = reachedDummy;
+    }
+
+    public void setNeedsOldWriterLengthVariable(boolean needsOldWriterLengthVariable) {
+      this.needsOldWriterLengthVariable = needsOldWriterLengthVariable;
     }
   }
 
