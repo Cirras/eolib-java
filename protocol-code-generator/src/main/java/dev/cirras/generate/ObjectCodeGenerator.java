@@ -170,16 +170,25 @@ final class ObjectCodeGenerator {
                     .orElse(null))
             .build();
 
-    data.getSerialize().beginControlFlow("if (writer.getLength() == oldWriterLength)");
-    fieldCodeGenerator.generateSerialize();
-    data.getSerialize().endControlFlow();
+    boolean needsIfGuards = !data.getSerialize().isEmpty() || !data.getDeserialize().isEmpty();
 
-    data.getDeserialize().beginControlFlow("if (reader.getPosition() == readerStartPosition)");
+    if (needsIfGuards) {
+      data.getSerialize().beginControlFlow("if (writer.getLength() == oldWriterLength)");
+      data.getDeserialize().beginControlFlow("if (reader.getPosition() == readerStartPosition)");
+    }
+
+    fieldCodeGenerator.generateSerialize();
     fieldCodeGenerator.generateDeserialize();
-    data.getDeserialize().endControlFlow();
+
+    if (needsIfGuards) {
+      data.getSerialize().endControlFlow();
+      data.getDeserialize().endControlFlow();
+    }
 
     context.setReachedDummy(true);
-    context.setNeedsOldWriterLengthVariable(true);
+    if (needsIfGuards) {
+      context.setNeedsOldWriterLengthVariable(true);
+    }
   }
 
   private void generateSwitch(ProtocolSwitch protocolSwitch) {
