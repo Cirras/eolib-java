@@ -88,8 +88,7 @@ final class SwitchCodeGenerator {
   }
 
   void generateObjectMethods() {
-    ObjectCodeGenerator.FieldData fieldData = getFieldData();
-    String javaName = fieldData.getJavaName();
+    String javaName = getCaseDataFieldName();
 
     data.getEquals().add(" && $1T.equals($2L, other.$2L)", Objects.class, javaName);
     data.getHashCode().add(", $L", javaName);

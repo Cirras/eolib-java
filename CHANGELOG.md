@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a codegen issue where dummy fields would not be written if preceded by a null optional field.
 - Fix a codegen issue where dummy fields would always be read during deserialization.
 - Fix a codegen issue where fields would not be initialized to their hardcoded values, causing errors during serialization.
+- Fix a codegen issue where fields referenced by switches would appear twice in generated `toString`/`equals`/`hashCode` methods.
+- Fix a codegen issue where switch case data fields were not present in generated `toString`/`equals`/`hashCode` methods.
 
 ## 1.0.0-RC1 - 2022-12-28
 
