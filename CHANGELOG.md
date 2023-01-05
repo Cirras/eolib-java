@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix a codegen issue where dummy fields would not be written if a non-empty `EOWriter` was used for serialization.
+- Fix a codegen issue where dummy fields would not be written if preceded by a null optional field.
 - Fix a codegen issue where dummy fields would always be read during deserialization.
 
 ## 1.0.0-RC1 - 2022-12-28

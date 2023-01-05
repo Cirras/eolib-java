@@ -74,6 +74,7 @@ class FieldCodeGenerator {
 
   private void validate() {
     validateSpecialFields();
+    validateOptionalField();
     validateArrayField();
     validateLengthField();
     validateUnnamedField();
@@ -85,6 +86,16 @@ class FieldCodeGenerator {
   private void validateSpecialFields() {
     if (arrayField && lengthField) {
       throw new CodeGenerationError("A field cannot be both a length field and an array field.");
+    }
+  }
+
+  private void validateOptionalField() {
+    if (!optional) {
+      return;
+    }
+
+    if (name == null) {
+      throw new CodeGenerationError("Optional fields must specify a name.");
     }
   }
 
@@ -317,7 +328,8 @@ class FieldCodeGenerator {
   }
 
   void generateSerialize() {
-    generateSerializeNullCheck();
+    generateSerializeNullOptionalGuard();
+    generateSerializeNullNotAllowedError();
     generateSerializeLengthCheck();
 
     if (arrayField) {
@@ -340,29 +352,40 @@ class FieldCodeGenerator {
     if (arrayField) {
       data.getSerialize().endControlFlow();
     }
+
+    if (optional) {
+      data.getSerialize().endControlFlow();
+    }
   }
 
-  private void generateSerializeNullCheck() {
-    if (name == null) {
+  private void generateSerializeNullOptionalGuard() {
+    if (!optional) {
       return;
     }
 
     String javaName = NameUtils.snakeCaseToCamelCase(name);
-
-    if (optional) {
+    if (context.isReachedOptionalField()) {
       data.getSerialize()
-          .beginControlFlow("if (data.$L == null)", javaName)
-          .addStatement("return")
-          .endControlFlow();
+          .addStatement("reachedNullOptional = reachedNullOptional || data.$L == null", javaName);
     } else {
-      data.getSerialize()
-          .beginControlFlow("if (data.$L == null)", javaName)
-          .addStatement(
-              "throw new $T($S)",
-              JavaPoetUtils.getSerializationErrorTypeName(),
-              javaName + " must not be null.")
-          .endControlFlow();
+      data.getSerialize().addStatement("boolean reachedNullOptional = data.$L == null", javaName);
     }
+    data.getSerialize().beginControlFlow("if (!reachedNullOptional)", javaName);
+  }
+
+  private void generateSerializeNullNotAllowedError() {
+    if (optional || name == null) {
+      return;
+    }
+
+    String javaName = NameUtils.snakeCaseToCamelCase(name);
+    data.getSerialize()
+        .beginControlFlow("if (data.$L == null)", javaName)
+        .addStatement(
+            "throw new $T($S)",
+            JavaPoetUtils.getSerializationErrorTypeName(),
+            javaName + " must not be null.")
+        .endControlFlow();
   }
 
   private void generateSerializeLengthCheck() {
