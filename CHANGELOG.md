@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `SequenceStart.zero()` method to create a `SequenceStart` instance with a value of zero.
 - More reserved item types and subtypes.
+- `OnlineCharacter.level` field, which was previously unknown.
 
 ### Changed
 - Rename `encodeMultiple` and `decodeMultiple` fields to `serverEncryptionMultiple` and `clientEncryptionMultiple`
