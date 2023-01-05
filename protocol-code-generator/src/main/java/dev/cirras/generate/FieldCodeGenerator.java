@@ -2,6 +2,7 @@ package dev.cirras.generate;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -219,10 +220,23 @@ class FieldCodeGenerator {
       javaTypeName = ParameterizedTypeName.get(ClassName.get(List.class), javaTypeName);
     }
 
+    CodeBlock initializer;
+    if (hardcodedValue == null) {
+      initializer = CodeBlock.builder().build();
+    } else if (type instanceof StringType) {
+      initializer = CodeBlock.of("$S", hardcodedValue);
+    } else {
+      initializer = CodeBlock.of(hardcodedValue);
+    }
+
     context
         .getAccessibleFields()
         .put(name, new ObjectCodeGenerator.FieldData(javaName, type, offset, arrayField));
-    data.getTypeSpec().addField(javaTypeName, javaName, Modifier.PRIVATE);
+    data.getTypeSpec()
+        .addField(
+            FieldSpec.builder(javaTypeName, javaName, Modifier.PRIVATE)
+                .initializer(initializer)
+                .build());
 
     if (lengthField) {
       context.getLengthFieldIsReferencedMap().put(name, false);
