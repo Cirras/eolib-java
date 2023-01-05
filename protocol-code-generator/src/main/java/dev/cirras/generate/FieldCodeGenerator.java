@@ -388,7 +388,7 @@ class FieldCodeGenerator {
   }
 
   private void generateSerializeNullNotAllowedError() {
-    if (optional || name == null) {
+    if (optional || name == null || hardcodedValue != null) {
       return;
     }
 
