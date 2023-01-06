@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `encodeMultiple` and `decodeMultiple` fields to `serverEncryptionMultiple` and `clientEncryptionMultiple`
 - Remove superfluous generated null checks for fields with hardcoded values.
 - Forbid unbounded element types in non-delimited arrays.
+- Change the name and type of `count` fields in `EIF`/`ENF`/`ECF`/`ESF` pub file structs.<br>
+They are now be regular fields that specify the total number of records for all pub files of that
+type, rather than specifying the length of the array of records in that particular file.
+- Change `TradeAgreePacket.agreeState` char field to `agree` bool field.
+- Consolidate `CitizenReplyPacket.answer[1-3]` fields into new `answers` array field.
+- Consolidate `CitizenOpen.question[1-3]` fields into new `questions` array field.
 
 ### Fixed
 - Fix a codegen issue where dummy fields would not be written if a non-empty `EOWriter` was used for serialization.
@@ -25,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a codegen issue where fields referenced by switches would appear twice in generated `toString`/`equals`/`hashCode` methods.
 - Fix a codegen issue where switch case data fields were not present in generated `toString`/`equals`/`hashCode` methods.
 - Remove erroneous `CharacterTakePacket.sessionId` short field - replaced with `characterId` int field.
+- Remove erroneous `ShopBuy.buyItemId` short field - replaced with `buyItem` Item field. 
 
 ## 1.0.0-RC1 - 2022-12-28
 
