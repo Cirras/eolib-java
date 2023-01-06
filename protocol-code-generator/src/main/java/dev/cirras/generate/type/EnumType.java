@@ -35,6 +35,11 @@ public final class EnumType implements CustomType, HasUnderlyingType {
   }
 
   @Override
+  public boolean isBounded() {
+    return underlyingType.isBounded();
+  }
+
+  @Override
   public String getPackageName() {
     return packageName;
   }

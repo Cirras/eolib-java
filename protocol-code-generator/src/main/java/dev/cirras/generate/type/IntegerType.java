@@ -20,4 +20,9 @@ public class IntegerType implements BasicType {
   public Optional<Integer> getFixedSize() {
     return Optional.of(size);
   }
+
+  @Override
+  public boolean isBounded() {
+    return true;
+  }
 }

@@ -20,6 +20,11 @@ public final class BoolType implements BasicType, HasUnderlyingType {
   }
 
   @Override
+  public boolean isBounded() {
+    return true;
+  }
+
+  @Override
   public IntegerType getUnderlyingType() {
     return underlyingType;
   }

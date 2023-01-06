@@ -4,9 +4,9 @@ import java.util.Optional;
 
 public class StringType implements BasicType {
   private final String name;
-  private final Integer length;
+  private final Length length;
 
-  public StringType(String name, Integer length) {
+  public StringType(String name, Length length) {
     this.name = name;
     this.length = length;
   }
@@ -18,6 +18,11 @@ public class StringType implements BasicType {
 
   @Override
   public Optional<Integer> getFixedSize() {
-    return Optional.ofNullable(length);
+    return length.asInteger();
+  }
+
+  @Override
+  public boolean isBounded() {
+    return length.isSpecified();
   }
 }

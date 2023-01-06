@@ -6,4 +6,6 @@ public interface Type {
   String getName();
 
   Optional<Integer> getFixedSize();
+
+  boolean isBounded();
 }

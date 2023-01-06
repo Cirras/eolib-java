@@ -3,6 +3,7 @@ package dev.cirras.generate.type;
 import dev.cirras.util.NameUtils;
 import dev.cirras.util.NumberUtils;
 import dev.cirras.xml.ProtocolArray;
+import dev.cirras.xml.ProtocolCase;
 import dev.cirras.xml.ProtocolChunked;
 import dev.cirras.xml.ProtocolDummy;
 import dev.cirras.xml.ProtocolEnum;
@@ -45,20 +46,20 @@ public final class TypeFactory {
   }
 
   public Type getType(String name) {
-    return getType(name, null);
+    return getType(name, Length.unspecified());
   }
 
-  public Type getType(String name, Integer length) {
-    if (length != null) {
+  public Type getType(String name, Length length) {
+    if (length.isSpecified()) {
       return createTypeWithSpecifiedLength(name, length);
     }
     if (!types.containsKey(name)) {
-      types.put(name, createType(name));
+      types.put(name, createType(name, length));
     }
     return types.get(name);
   }
 
-  private Type createType(String name) {
+  private Type createType(String name, Length length) {
     IntegerType underlyingType = readUnderlyingType(name);
     if (underlyingType != null) {
       name = name.substring(0, name.indexOf(':'));
@@ -88,7 +89,7 @@ public final class TypeFactory {
         break;
       case "string":
       case "encoded_string":
-        result = new StringType(name, null);
+        result = new StringType(name, length);
         break;
       default:
         result = createCustomType(name, underlyingType);
@@ -204,7 +205,10 @@ public final class TypeFactory {
 
   private Type createStructType(ProtocolStruct protocolStruct, String packageName) {
     return new StructType(
-        protocolStruct.getName(), calculateFixedStructSize(protocolStruct), packageName);
+        protocolStruct.getName(),
+        calculateFixedStructSize(protocolStruct),
+        isBounded(protocolStruct),
+        packageName);
   }
 
   private Integer calculateFixedStructSize(ProtocolStruct protocolStruct) {
@@ -239,8 +243,7 @@ public final class TypeFactory {
   }
 
   private Integer calculateFixedStructFieldSize(ProtocolField protocolField) {
-    Integer length = NumberUtils.tryParseInt(protocolField.getLength());
-    Type type = getType(protocolField.getType(), length);
+    Type type = getType(protocolField.getType(), createTypeLengthForField(protocolField));
     Optional<Integer> fieldSize = type.getFixedSize();
     if (!fieldSize.isPresent()) {
       // All fields in a fixed-size struct must also be fixed-size
@@ -295,7 +298,48 @@ public final class TypeFactory {
     return dummySize.get();
   }
 
-  private static Type createTypeWithSpecifiedLength(String name, int length) {
+  private boolean isBounded(ProtocolStruct protocolStruct) {
+    return protocolStruct.getInstructions().stream().allMatch(this::isBoundedInstruction);
+  }
+
+  private boolean isBoundedInstruction(Object instruction) {
+    if (instruction instanceof ProtocolField) {
+      ProtocolField protocolField = (ProtocolField) instruction;
+      Type type = getType(protocolField.getType(), createTypeLengthForField(protocolField));
+      return type.isBounded();
+    } else if (instruction instanceof ProtocolArray) {
+      ProtocolArray protocolArray = (ProtocolArray) instruction;
+      if (protocolArray.getLength() == null) {
+        return false;
+      }
+      Type elementType = getType(protocolArray.getType());
+      return elementType.isBounded();
+    } else if (instruction instanceof ProtocolDummy) {
+      ProtocolDummy protocolDummy = (ProtocolDummy) instruction;
+      Type type = getType(protocolDummy.getType());
+      return type.isBounded();
+    } else if (instruction instanceof ProtocolChunked) {
+      return ((ProtocolChunked) instruction)
+          .getInstructions().stream().allMatch(this::isBoundedInstruction);
+    } else if (instruction instanceof ProtocolSwitch) {
+      for (ProtocolCase protocolCase : ((ProtocolSwitch) instruction).getCases()) {
+        if (!protocolCase.getInstructions().stream().allMatch(this::isBoundedInstruction)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private static Length createTypeLengthForField(ProtocolField protocolField) {
+    if (protocolField.getLength() != null) {
+      return Length.fromString(protocolField.getLength());
+    } else {
+      return Length.unspecified();
+    }
+  }
+
+  private static Type createTypeWithSpecifiedLength(String name, Length length) {
     switch (name) {
       case "string":
       case "encoded_string":
@@ -303,7 +347,7 @@ public final class TypeFactory {
       default:
         throw new TypeError(
             String.format(
-                "%s type with length %d is invalid. (Only string types may specify a length)",
+                "%s type with length %s is invalid. (Only string types may specify a length)",
                 name, length));
     }
   }

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Rename `encodeMultiple` and `decodeMultiple` fields to `serverEncryptionMultiple` and `clientEncryptionMultiple`
 - Remove superfluous generated null checks for fields with hardcoded values.
+- Forbid unbounded element types in non-delimited arrays.
 
 ### Fixed
 - Fix a codegen issue where dummy fields would not be written if a non-empty `EOWriter` was used for serialization.

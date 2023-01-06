@@ -12,6 +12,7 @@ import dev.cirras.generate.type.CustomType;
 import dev.cirras.generate.type.EnumType;
 import dev.cirras.generate.type.HasUnderlyingType;
 import dev.cirras.generate.type.IntegerType;
+import dev.cirras.generate.type.Length;
 import dev.cirras.generate.type.StringType;
 import dev.cirras.generate.type.StructType;
 import dev.cirras.generate.type.Type;
@@ -107,6 +108,11 @@ class FieldCodeGenerator {
       }
       if (hardcodedValue != null) {
         throw new CodeGenerationError("Array fields may not specify hardcoded values.");
+      }
+      if (!delimited && !getType().isBounded()) {
+        throw new CodeGenerationError(
+            String.format(
+                "Unbounded element type (%s) forbidden in non-delimited array.", typeString));
       }
     } else {
       if (delimited) {
@@ -707,17 +713,20 @@ class FieldCodeGenerator {
   }
 
   private Type getType() {
-    Integer length;
+    return typeFactory.getType(typeString, getTypeLength());
+  }
+
+  private Length getTypeLength() {
     if (arrayField) {
       // For array fields, "length" refers to the length of the array.
-      length = null;
-    } else {
-      length = NumberUtils.tryParseInt(lengthString);
-      if (length != null) {
-        length += offset;
-      }
+      return Length.unspecified();
     }
-    return typeFactory.getType(typeString, length);
+
+    if (lengthString != null) {
+      return Length.fromString(lengthString);
+    }
+
+    return Length.unspecified();
   }
 
   private TypeName getJavaTypeName() {
