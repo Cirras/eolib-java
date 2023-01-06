@@ -3,6 +3,7 @@ package dev.cirras.generate.type;
 import dev.cirras.util.NameUtils;
 import dev.cirras.util.NumberUtils;
 import dev.cirras.xml.ProtocolArray;
+import dev.cirras.xml.ProtocolBreak;
 import dev.cirras.xml.ProtocolCase;
 import dev.cirras.xml.ProtocolChunked;
 import dev.cirras.xml.ProtocolDummy;
@@ -299,36 +300,56 @@ public final class TypeFactory {
   }
 
   private boolean isBounded(ProtocolStruct protocolStruct) {
-    return protocolStruct.getInstructions().stream().allMatch(this::isBoundedInstruction);
+    boolean result = true;
+
+    for (Object instruction : flattenInstructions(protocolStruct)) {
+      if (!result) {
+        result = instruction instanceof ProtocolBreak;
+        continue;
+      }
+
+      if (instruction instanceof ProtocolField) {
+        ProtocolField protocolField = (ProtocolField) instruction;
+        Type type = getType(protocolField.getType(), createTypeLengthForField(protocolField));
+        result = type.isBounded();
+      } else if (instruction instanceof ProtocolArray) {
+        ProtocolArray protocolArray = (ProtocolArray) instruction;
+        if (protocolArray.getLength() == null) {
+          return false;
+        }
+        Type elementType = getType(protocolArray.getType());
+        result = elementType.isBounded();
+      } else if (instruction instanceof ProtocolDummy) {
+        ProtocolDummy protocolDummy = (ProtocolDummy) instruction;
+        Type type = getType(protocolDummy.getType());
+        result = type.isBounded();
+      }
+    }
+
+    return result;
   }
 
-  private boolean isBoundedInstruction(Object instruction) {
-    if (instruction instanceof ProtocolField) {
-      ProtocolField protocolField = (ProtocolField) instruction;
-      Type type = getType(protocolField.getType(), createTypeLengthForField(protocolField));
-      return type.isBounded();
-    } else if (instruction instanceof ProtocolArray) {
-      ProtocolArray protocolArray = (ProtocolArray) instruction;
-      if (protocolArray.getLength() == null) {
-        return false;
+  private static List<Object> flattenInstructions(ProtocolStruct protocolStruct) {
+    List<Object> result = new ArrayList<>();
+    for (Object instruction : protocolStruct.getInstructions()) {
+      flattenInstruction(instruction, result);
+    }
+    return result;
+  }
+
+  private static void flattenInstruction(Object instruction, List<Object> result) {
+    result.add(instruction);
+    if (instruction instanceof ProtocolChunked) {
+      for (Object chunkedInstruction : ((ProtocolChunked) instruction).getInstructions()) {
+        flattenInstruction(chunkedInstruction, result);
       }
-      Type elementType = getType(protocolArray.getType());
-      return elementType.isBounded();
-    } else if (instruction instanceof ProtocolDummy) {
-      ProtocolDummy protocolDummy = (ProtocolDummy) instruction;
-      Type type = getType(protocolDummy.getType());
-      return type.isBounded();
-    } else if (instruction instanceof ProtocolChunked) {
-      return ((ProtocolChunked) instruction)
-          .getInstructions().stream().allMatch(this::isBoundedInstruction);
     } else if (instruction instanceof ProtocolSwitch) {
       for (ProtocolCase protocolCase : ((ProtocolSwitch) instruction).getCases()) {
-        if (!protocolCase.getInstructions().stream().allMatch(this::isBoundedInstruction)) {
-          return false;
+        for (Object caseInstruction : protocolCase.getInstructions()) {
+          flattenInstruction(caseInstruction, result);
         }
       }
     }
-    return true;
   }
 
   private static Length createTypeLengthForField(ProtocolField protocolField) {
