@@ -11,9 +11,9 @@ public final class NameUtils {
     for (int i = 0; i < name.length(); ++i) {
       char c = name.charAt(i);
       if (i > 0
-          && i + 1 < name.length()
           && Character.isUpperCase(c)
-          && !Character.isUpperCase(name.charAt(i + 1))) {
+          && ((i + 1 < name.length() && !Character.isUpperCase(name.charAt(i + 1)))
+              || Character.isLowerCase(name.charAt(i - 1)))) {
         builder.append("_");
       }
       builder.append(Character.toUpperCase(c));

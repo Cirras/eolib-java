@@ -30,6 +30,8 @@ type, rather than specifying the length of the array of records in that particul
 - Fix a codegen issue where fields would not be initialized to their hardcoded values, causing errors during serialization.
 - Fix a codegen issue where fields referenced by switches would appear twice in generated `toString`/`equals`/`hashCode` methods.
 - Fix a codegen issue where switch case data fields were not present in generated `toString`/`equals`/`hashCode` methods.
+- Fix a codegen issue where enum names with trailing acronyms were missing a `_` separator.<br>
+With this change, the `InitReply.FILE*` enum values are now `InitReply.FILE_*`.
 - Remove erroneous `CharacterTakePacket.sessionId` short field - replaced with `characterId` int field.
 - Remove erroneous `ShopBuy.buyItemId` short field - replaced with `buyItem` Item field. 
 
