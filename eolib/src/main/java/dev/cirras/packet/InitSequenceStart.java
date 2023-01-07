@@ -1,13 +1,13 @@
 package dev.cirras.packet;
 
 import dev.cirras.data.EONumericLimits;
-import dev.cirras.protocol.net.server.InitInitPacket;
+import dev.cirras.protocol.net.server.InitInitServerPacket;
 import java.util.Random;
 
 /**
  * A class representing the sequence start value sent with the INIT_INIT server packet.
  *
- * @see InitInitPacket
+ * @see InitInitServerPacket
  */
 public final class InitSequenceStart extends AbstractSequenceStart {
   private final int seq1;
@@ -22,7 +22,7 @@ public final class InitSequenceStart extends AbstractSequenceStart {
   /**
    * Returns the seq1 byte value sent with the INIT_INIT server packet.
    *
-   * @see InitInitPacket.ReplyCodeDataOK#getSeq1()
+   * @see InitInitServerPacket.ReplyCodeDataOK#getSeq1()
    */
   public int getSeq1() {
     return seq1;
@@ -31,7 +31,7 @@ public final class InitSequenceStart extends AbstractSequenceStart {
   /**
    * Returns the seq2 byte value sent with the INIT_INIT server packet.
    *
-   * @see InitInitPacket.ReplyCodeDataOK#getSeq2()
+   * @see InitInitServerPacket.ReplyCodeDataOK#getSeq2()
    */
   public int getSeq2() {
     return seq2;
@@ -43,8 +43,8 @@ public final class InitSequenceStart extends AbstractSequenceStart {
    *
    * @param seq1 the seq1 byte value sent with the INIT_INIT server packet
    * @param seq2 the seq2 byte value sent with the INIT_INIT server packet
-   * @see InitInitPacket.ReplyCodeDataOK#getSeq1()
-   * @see InitInitPacket.ReplyCodeDataOK#getSeq2()
+   * @see InitInitServerPacket.ReplyCodeDataOK#getSeq1()
+   * @see InitInitServerPacket.ReplyCodeDataOK#getSeq2()
    */
   public static InitSequenceStart fromInitValues(int seq1, int seq2) {
     int value = seq1 * 7 + seq2 - 13;

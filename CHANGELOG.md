@@ -22,6 +22,7 @@ type, rather than specifying the length of the array of records in that particul
 - Change `TradeAgreePacket.agreeState` char field to `agree` bool field.
 - Consolidate `CitizenReplyPacket.answer[1-3]` fields into new `answers` array field.
 - Consolidate `CitizenOpen.question[1-3]` fields into new `questions` array field.
+- Use unique `ClientPacket` and `ServerPacket` name suffixes for packet classes.
 
 ### Fixed
 - Fix a codegen issue where dummy fields would not be written if a non-empty `EOWriter` was used for serialization.
@@ -33,7 +34,7 @@ type, rather than specifying the length of the array of records in that particul
 - Fix a codegen issue where enum names with trailing acronyms were missing a `_` separator.<br>
 With this change, the `InitReply.FILE*` enum values are now `InitReply.FILE_*`.
 - Remove erroneous `CharacterTakePacket.sessionId` short field - replaced with `characterId` int field.
-- Remove erroneous `ShopBuy.buyItemId` short field - replaced with `buyItem` Item field. 
+- Remove erroneous `ShopBuy.buyItemId` short field - replaced with `buyItem` Item field.
 
 ## 1.0.0-RC1 - 2022-12-28
 

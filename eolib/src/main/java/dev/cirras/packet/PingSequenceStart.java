@@ -1,13 +1,13 @@
 package dev.cirras.packet;
 
 import dev.cirras.data.EONumericLimits;
-import dev.cirras.protocol.net.server.ConnectionPlayerPacket;
+import dev.cirras.protocol.net.server.ConnectionPlayerServerPacket;
 import java.util.Random;
 
 /**
  * A class representing the sequence start value sent with the CONNECTION_PLAYER server packet.
  *
- * @see ConnectionPlayerPacket
+ * @see ConnectionPlayerServerPacket
  */
 public final class PingSequenceStart extends AbstractSequenceStart {
   private final int seq1;
@@ -22,7 +22,7 @@ public final class PingSequenceStart extends AbstractSequenceStart {
   /**
    * Returns the seq1 short value sent with the CONNECTION_PLAYER server packet.
    *
-   * @see ConnectionPlayerPacket#getSeq1()
+   * @see ConnectionPlayerServerPacket#getSeq1()
    */
   public int getSeq1() {
     return seq1;
@@ -31,7 +31,7 @@ public final class PingSequenceStart extends AbstractSequenceStart {
   /**
    * Returns the seq2 char value sent with the CONNECTION_PLAYER server packet.
    *
-   * @see ConnectionPlayerPacket#getSeq2()
+   * @see ConnectionPlayerServerPacket#getSeq2()
    */
   public int getSeq2() {
     return seq2;
@@ -43,8 +43,8 @@ public final class PingSequenceStart extends AbstractSequenceStart {
    *
    * @param seq1 the seq1 short value sent with the CONNECTION_PLAYER server packet
    * @param seq2 the seq2 char value sent with the CONNECTION_PLAYER server packet
-   * @see ConnectionPlayerPacket#getSeq1()
-   * @see ConnectionPlayerPacket#getSeq2()
+   * @see ConnectionPlayerServerPacket#getSeq1()
+   * @see ConnectionPlayerServerPacket#getSeq2()
    */
   public static PingSequenceStart fromPingValues(int seq1, int seq2) {
     int value = seq1 - seq2;

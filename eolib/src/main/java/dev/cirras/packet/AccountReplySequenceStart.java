@@ -1,12 +1,12 @@
 package dev.cirras.packet;
 
-import dev.cirras.protocol.net.server.AccountReplyPacket;
+import dev.cirras.protocol.net.server.AccountReplyServerPacket;
 import java.util.Random;
 
 /**
  * A class representing the sequence start value sent with the ACCOUNT_REPLY server packet.
  *
- * @see AccountReplyPacket
+ * @see AccountReplyServerPacket
  */
 public final class AccountReplySequenceStart extends AbstractSequenceStart {
   private AccountReplySequenceStart(int value) {
@@ -18,7 +18,7 @@ public final class AccountReplySequenceStart extends AbstractSequenceStart {
    * ACCOUNT_REPLY server packet.
    *
    * @param value the sequence_start char value sent with the ACCOUNT_REPLY server packet
-   * @see AccountReplyPacket.ReplyCodeDataDefault#getSequenceStart()
+   * @see AccountReplyServerPacket.ReplyCodeDataDefault#getSequenceStart()
    */
   public static AccountReplySequenceStart fromValue(int value) {
     return new AccountReplySequenceStart(value);

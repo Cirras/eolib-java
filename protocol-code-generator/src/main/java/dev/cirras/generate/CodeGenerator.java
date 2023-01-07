@@ -286,7 +286,8 @@ public final class CodeGenerator {
 
   private JavaFile generatePacket(ProtocolPacket protocolPacket) {
     String packageName = packetPackageNames.get(protocolPacket);
-    String simpleName = protocolPacket.getFamily() + protocolPacket.getAction() + "Packet";
+    String packetSuffix = makePacketSuffix(packageName);
+    String simpleName = protocolPacket.getFamily() + protocolPacket.getAction() + packetSuffix;
     ClassName className = ClassName.get(packageName, simpleName);
 
     LOG.info("Generating packet: {}", className);
@@ -377,5 +378,17 @@ public final class CodeGenerator {
         .ifPresent(typeSpec::addJavadoc);
 
     return JavaFile.builder(packageName, typeSpec.build()).build();
+  }
+
+  private static String makePacketSuffix(String packageName) {
+    switch (packageName) {
+      case "dev.cirras.protocol.net.client":
+        return "ClientPacket";
+      case "dev.cirras.protocol.net.server":
+        return "ServerPacket";
+      default:
+        throw new CodeGenerationError(
+            "Cannot create packet name suffix for package " + packageName);
+    }
   }
 }
