@@ -35,6 +35,7 @@ type, rather than specifying the length of the array of records in that particul
 With this change, the `InitReply.FILE*` enum values are now `InitReply.FILE_*`.
 - Remove erroneous `CharacterTakePacket.sessionId` short field - replaced with `characterId` int field.
 - Remove erroneous `ShopBuy.buyItemId` short field - replaced with `buyItem` Item field.
+- Change incorrect `npcIndex` field types from `short` to `char` in `NPCUpdatePosition`, `NPCUpdateAttack`, and `NPCUpdateChat`.
 
 ## 1.0.0-RC1 - 2022-12-28
 
