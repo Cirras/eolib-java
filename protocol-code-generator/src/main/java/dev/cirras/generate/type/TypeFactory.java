@@ -314,11 +314,8 @@ public final class TypeFactory {
         result = type.isBounded();
       } else if (instruction instanceof ProtocolArray) {
         ProtocolArray protocolArray = (ProtocolArray) instruction;
-        if (protocolArray.getLength() == null) {
-          return false;
-        }
         Type elementType = getType(protocolArray.getType());
-        result = elementType.isBounded();
+        result = elementType.isBounded() && protocolArray.getLength() != null;
       } else if (instruction instanceof ProtocolDummy) {
         ProtocolDummy protocolDummy = (ProtocolDummy) instruction;
         Type type = getType(protocolDummy.getType());
