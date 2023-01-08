@@ -22,6 +22,8 @@ type, rather than specifying the length of the array of records in that particul
 - Change `TradeAgreePacket.agreeState` char field to `agree` bool field.
 - Consolidate `CitizenReplyPacket.answer[1-3]` fields into new `answers` array field.
 - Consolidate `CitizenOpen.question[1-3]` fields into new `questions` array field.
+- Rename `CharacterMapInfo.skinId` field to `skin`.
+- Remove `Skin` enum and use basic integer types instead.
 - Use unique `ClientPacket` and `ServerPacket` name suffixes for packet classes.
 
 ### Fixed
