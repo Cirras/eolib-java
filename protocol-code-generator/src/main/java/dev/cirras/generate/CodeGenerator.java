@@ -2,6 +2,7 @@ package dev.cirras.generate;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -154,12 +155,54 @@ public final class CodeGenerator {
   private JavaFile generateEnum(ProtocolEnum protocolEnum) {
     EnumType type = (EnumType) typeFactory.getType(protocolEnum.getName());
     String packageName = type.getPackageName();
-    ClassName className = ClassName.get(packageName, protocolEnum.getName());
+    ClassName wrapperName = ClassName.get(packageName, protocolEnum.getName());
+    ClassName enumName = wrapperName.nestedClass("Enum");
 
-    LOG.info("Generating enum: {}", className);
+    LOG.info("Generating enum: {}", wrapperName);
 
-    TypeSpec.Builder typeSpec =
-        TypeSpec.enumBuilder(className)
+    TypeSpec.Builder wrapperTypeSpec =
+        TypeSpec.classBuilder(wrapperName)
+            .addAnnotation(JavaPoetUtils.getGeneratedAnnotationTypeName())
+            .addModifiers(Modifier.PUBLIC)
+            .addField(enumName, "enumValue", Modifier.PRIVATE)
+            .addField(int.class, "integerValue", Modifier.PRIVATE)
+            .addMethod(
+                MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PRIVATE)
+                    .addParameter(enumName, "enumValue")
+                    .addParameter(int.class, "integerValue")
+                    .addStatement("this.enumValue = enumValue")
+                    .addStatement("this.integerValue = integerValue")
+                    .build())
+            .addMethod(
+                MethodSpec.methodBuilder("asEnum")
+                    .addJavadoc("Returns the value as an enum.")
+                    .addJavadoc("\n\n")
+                    .addJavadoc("@return the value as an enum")
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(enumName)
+                    .addStatement("return enumValue")
+                    .build())
+            .addMethod(
+                MethodSpec.methodBuilder("asInteger")
+                    .addJavadoc("Returns the value as an integer.")
+                    .addJavadoc("\n\n")
+                    .addJavadoc("@return the value as an integer")
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(int.class)
+                    .addStatement("return integerValue")
+                    .build());
+
+    protocolEnum
+        .getComment()
+        .map(ProtocolComment::getText)
+        .map(CommentUtils::formatComment)
+        .ifPresent(wrapperTypeSpec::addJavadoc);
+
+    TypeSpec.Builder enumTypeSpec =
+        TypeSpec.enumBuilder(enumName)
+            .addJavadoc(
+                "An enum representing expected values of {@code $L}.", wrapperName.simpleName())
             .addAnnotation(JavaPoetUtils.getGeneratedAnnotationTypeName())
             .addModifiers(Modifier.PUBLIC)
             .addField(int.class, "value", Modifier.PRIVATE, Modifier.FINAL)
@@ -179,11 +222,11 @@ public final class CodeGenerator {
                     .addStatement("return value")
                     .build());
 
-    protocolEnum
-        .getComment()
-        .map(ProtocolComment::getText)
-        .map(CommentUtils::formatComment)
-        .ifPresent(typeSpec::addJavadoc);
+    enumTypeSpec.addEnumConstant(
+        "UNRECOGNIZED",
+        TypeSpec.anonymousClassBuilder("-1")
+            .addJavadoc("An unrecognized value that is not represented in the enum.")
+            .build());
 
     CodeBlock.Builder fromIntegerSwitchBlock =
         CodeBlock.builder().beginControlFlow("switch (value)");
@@ -196,17 +239,36 @@ public final class CodeGenerator {
       TypeSpec.Builder enumConstantClass =
           TypeSpec.anonymousClassBuilder("$L", value.getOrdinalValue());
 
+      FieldSpec.Builder wrapperField =
+          FieldSpec.builder(
+                  wrapperName,
+                  value.getJavaName(),
+                  Modifier.PUBLIC,
+                  Modifier.STATIC,
+                  Modifier.FINAL)
+              .initializer(
+                  "new $T($T.$L, $L)",
+                  wrapperName,
+                  enumName,
+                  value.getJavaName(),
+                  value.getOrdinalValue());
+
       protocolValue
           .getComment()
           .map(ProtocolComment::getText)
-          .ifPresent(enumConstantClass::addJavadoc);
+          .ifPresent(
+              text -> {
+                enumConstantClass.addJavadoc(text);
+                wrapperField.addJavadoc(text);
+              });
 
-      typeSpec.addEnumConstant(value.getJavaName(), enumConstantClass.build());
+      enumTypeSpec.addEnumConstant(value.getJavaName(), enumConstantClass.build());
+      wrapperTypeSpec.addField(wrapperField.build());
 
       fromIntegerSwitchBlock
           .add("case $L:\n", value.getOrdinalValue())
           .indent()
-          .addStatement("return $T.$L", className, value.getJavaName())
+          .addStatement("return $T.$L", wrapperName, value.getJavaName())
           .unindent();
     }
 
@@ -217,10 +279,10 @@ public final class CodeGenerator {
       EnumType.EnumValue max = type.getValues().get(type.getValues().size() - 1);
       defaultCase
           .beginControlFlow("if (value < $L)", min.getOrdinalValue())
-          .addStatement("return $T.$L", className, min.getJavaName())
+          .addStatement("return $T.$L", wrapperName, min.getJavaName())
           .endControlFlow()
           .beginControlFlow("if (value > $L)", max.getOrdinalValue())
-          .addStatement("return $T.$L", className, max.getJavaName())
+          .addStatement("return $T.$L", wrapperName, max.getJavaName())
           .endControlFlow();
     }
 
@@ -234,34 +296,34 @@ public final class CodeGenerator {
             .orElse(null);
 
     if (defaultValue == null) {
-      defaultCase.addStatement(
-          "throw new $T(String.format(\"%d is an invalid integer value for $L\", value))",
-          IllegalArgumentException.class, protocolEnum.getName());
+      defaultCase.addStatement("return new $T($T.UNRECOGNIZED, value)", wrapperName, enumName);
     } else {
-      defaultCase.addStatement("return $T.$L", className, defaultValue.getJavaName());
+      defaultCase.addStatement("return $T.$L", wrapperName, defaultValue.getJavaName());
     }
 
     defaultCase.unindent();
 
     fromIntegerSwitchBlock.add(defaultCase.build()).endControlFlow();
 
-    typeSpec.addMethod(
-        MethodSpec.methodBuilder("fromInteger")
-            .addJavadoc("Returns the enum constant of this type with the specified integer value.")
-            .addJavadoc("\n\n")
-            .addJavadoc("@param value the integer value\n")
-            .addJavadoc("@return the enum constant with the specified integer value\n")
-            .addJavadoc(
-                "@throws $T if the enum type has no constant with the specified integer value\n",
-                IllegalArgumentException.class)
-            .addJavadoc("@throws $T if the argument is null", NullPointerException.class)
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addParameter(int.class, "value")
-            .returns(className)
-            .addCode(fromIntegerSwitchBlock.build())
-            .build());
+    wrapperTypeSpec
+        .addMethod(
+            MethodSpec.methodBuilder("fromInteger")
+                .addJavadoc(
+                    "Returns an instance of {@code $L} with the specified integer value.",
+                    wrapperName.simpleName())
+                .addJavadoc("\n\n")
+                .addJavadoc("@param value the integer value\n")
+                .addJavadoc(
+                    "@return an instance of {@code $L} with the specified integer value\n",
+                    wrapperName.simpleName())
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(int.class, "value")
+                .returns(wrapperName)
+                .addCode(fromIntegerSwitchBlock.build())
+                .build())
+        .addType(enumTypeSpec.build());
 
-    return JavaFile.builder(packageName, typeSpec.build()).build();
+    return JavaFile.builder(packageName, wrapperTypeSpec.build()).build();
   }
 
   private JavaFile generateStruct(ProtocolStruct protocolStruct) {

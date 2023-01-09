@@ -78,8 +78,12 @@ final class SwitchCodeGenerator {
 
   void generateSwitchStart() {
     ObjectCodeGenerator.FieldData fieldData = getFieldData();
-    data.getSerialize().beginControlFlow("switch (data.$L)", fieldData.getJavaName());
-    data.getDeserialize().beginControlFlow("switch (data.$L)", fieldData.getJavaName());
+    String switchValueExpression = "data." + fieldData.getJavaName();
+    if (fieldData.getType() instanceof EnumType) {
+      switchValueExpression += ".asEnum()";
+    }
+    data.getSerialize().beginControlFlow("switch ($L)", switchValueExpression);
+    data.getDeserialize().beginControlFlow("switch ($L)", switchValueExpression);
   }
 
   void generateSwitchEnd() {

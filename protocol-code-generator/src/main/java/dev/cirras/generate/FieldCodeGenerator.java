@@ -470,7 +470,7 @@ class FieldCodeGenerator {
 
     String valueExpression = getWriteValueExpression();
     if (realType instanceof EnumType) {
-      valueExpression += ".getValue()";
+      valueExpression += ".asInteger()";
     } else if (realType instanceof BoolType) {
       valueExpression += " ? 1 : 0";
     }

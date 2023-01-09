@@ -25,6 +25,8 @@ type, rather than specifying the length of the array of records in that particul
 - Rename `CharacterMapInfo.skinId` field to `skin`.
 - Remove `Skin` enum and use basic integer types instead.
 - Use unique `ClientPacket` and `ServerPacket` name suffixes for packet classes.
+- Unrecognized enum values no longer throw an exception during deserialization.
+- Enum values are now modeled as classes wrapping a Java enum and integer value, allowing unrecognized values to be persisted after deserialization.
 
 ### Fixed
 - Fix a codegen issue where dummy fields would not be written if a non-empty `EOWriter` was used for serialization.
