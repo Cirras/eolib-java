@@ -38,6 +38,7 @@ With this change, the `InitReply.FILE*` enum values are now `InitReply.FILE_*`.
 - Remove erroneous `CharacterTakePacket.sessionId` short field - replaced with `characterId` int field.
 - Remove erroneous `ShopBuy.buyItemId` short field - replaced with `buyItem` Item field.
 - Change incorrect `npcIndex` field types from `short` to `char` in `NPCUpdatePosition`, `NPCUpdateAttack`, and `NPCUpdateChat`.
+- Change incorrect underlying type of `NPCType` enum from `char` to `short`.
 
 ## 1.0.0-RC1 - 2022-12-28
 
