@@ -13,19 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `OnlineCharacter.level` field, which was previously unknown.
 
 ### Changed
-- Rename `encodeMultiple` and `decodeMultiple` fields to `serverEncryptionMultiple` and `clientEncryptionMultiple`
 - Remove superfluous generated null checks for fields with hardcoded values.
 - Forbid unbounded element types in non-delimited arrays.
 - Change the name and type of `count` fields in `EIF`/`ENF`/`ECF`/`ESF` pub file structs.<br>
-They are now be regular fields that specify the total number of records for all pub files of that
-type, rather than specifying the length of the array of records in that particular file.
-- Change `TradeAgreePacket.agreeState` char field to `agree` bool field.
-- Consolidate `CitizenReplyPacket.answer[1-3]` fields into new `answers` array field.
-- Consolidate `CitizenOpen.question[1-3]` fields into new `questions` array field.
+They are now regular fields that specify the total number of records for all pub files of that type,
+rather than specifying the length of the array of records in that particular file.
+- Use unique `ClientPacket` and `ServerPacket` name suffixes for packet classes.
+- Consolidate `CitizenReplyClientPacket.answer[1-3]` fields into new `answers` array field.
+- Consolidate `CitizenOpenServerPacket.question[1-3]` fields into new `questions` array field.
+- Change `TradeAgreeClientPacket.agreeState` char field to `agree` bool field.
+- Rename `InitInitServerPacket.ReplyCodeDataOK.encodeMultiple` field to `serverEncryptionMultiple`.
+- Rename `InitInitServerPacket.ReplyCodeDataOK.decodeMultiple` field to `clientEncryptionMultiple`.
 - Rename `InitInitServerPacket.ReplyCodeDataOK.response` field to `challengeResponse`.
 - Rename `CharacterMapInfo.skinId` field to `skin`.
 - Remove `Skin` enum and use basic integer types instead.
-- Use unique `ClientPacket` and `ServerPacket` name suffixes for packet classes.
 - Unrecognized enum values no longer throw an exception during deserialization.
 - Enum values are now modeled as classes wrapping a Java enum and integer value, allowing unrecognized values to be persisted after deserialization.
 
@@ -38,8 +39,8 @@ type, rather than specifying the length of the array of records in that particul
 - Fix a codegen issue where switch case data fields were not present in generated `toString`/`equals`/`hashCode` methods.
 - Fix a codegen issue where enum names with trailing acronyms were missing a `_` separator.<br>
 With this change, the `InitReply.FILE*` enum values are now `InitReply.FILE_*`.
-- Remove erroneous `CharacterTakePacket.sessionId` short field - replaced with `characterId` int field.
-- Remove erroneous `ShopBuy.buyItemId` short field - replaced with `buyItem` Item field.
+- Remove erroneous `CharacterTakeClientPacket.sessionId` short field - replaced with `characterId` int field.
+- Remove erroneous `ShopBuyClientPacket.buyItemId` short field - replaced with `buyItem` Item field.
 - Change incorrect `npcIndex` field types from `short` to `char` in `NPCUpdatePosition`, `NPCUpdateAttack`, and `NPCUpdateChat`.
 - Change incorrect underlying type of `NPCType` enum from `char` to `short`.
 
