@@ -1,5 +1,8 @@
 package dev.cirras.encrypt;
 
+import dev.cirras.protocol.net.client.InitInitClientPacket;
+import dev.cirras.protocol.net.server.InitInitServerPacket;
+
 /** A utility class for verifying that the game server is genuine. */
 public class ServerVerificationUtils {
   private ServerVerificationUtils() {
@@ -20,6 +23,8 @@ public class ServerVerificationUtils {
    *
    * @param challenge the challenge value sent by the client
    * @return the hashed challenge value
+   * @see InitInitClientPacket#getChallenge()
+   * @see InitInitServerPacket.ReplyCodeDataOK#getChallengeResponse()
    */
   public static int serverVerificationHash(int challenge) {
     ++challenge;
