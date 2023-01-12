@@ -5,11 +5,11 @@
   <parent>
     <artifactId>eolib-parent</artifactId>
     <groupId>dev.cirras</groupId>
-    <version>1.0.0-RC1</version>
+    <version>1.0.0-RC2</version>
   </parent>
 
   <artifactId>protocol-code-generator-maven-plugin</artifactId>
-  <version>1.0.0-RC1</version>
+  <version>1.0.0-RC2</version>
 
   <packaging>maven-plugin</packaging>
 
@@ -47,7 +47,7 @@
     <dependency>
       <groupId>dev.cirras</groupId>
       <artifactId>protocol-code-generator</artifactId>
-      <version>1.0.0-RC1</version>
+      <version>1.0.0-RC2</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
