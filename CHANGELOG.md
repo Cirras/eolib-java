@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Miscellaneous javadoc improvements.
+
 ## [1.0.0-RC2] - 2023-01-12
 
 ### Added
