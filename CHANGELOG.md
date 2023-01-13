@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Miscellaneous javadoc improvements.
 
+### Removed
+
+- Enum value `default` and `clamp` behaviors. These were removed from `eo-protocol` following the requirement to persist unrecognized enum values after deserialization.
+
 ## [1.0.0-RC2] - 2023-01-12
 
 ### Added

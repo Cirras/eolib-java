@@ -15,9 +15,6 @@ public final class ProtocolValue {
   @XmlAttribute(required = true)
   private String name;
 
-  @XmlAttribute(name = "default")
-  private boolean isDefault;
-
   @XmlElement private ProtocolComment comment;
 
   @XmlMixed private final List<String> textContent = new ArrayList<>();
@@ -26,10 +23,6 @@ public final class ProtocolValue {
 
   public String getName() {
     return name;
-  }
-
-  public boolean isDefault() {
-    return isDefault;
   }
 
   public int getOrdinalValue() {

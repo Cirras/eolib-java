@@ -273,38 +273,12 @@ public final class CodeGenerator {
           .unindent();
     }
 
-    CodeBlock.Builder defaultCase = CodeBlock.builder().add("default:\n").indent();
-
-    if (protocolEnum.isClamp() && !type.getValues().isEmpty()) {
-      EnumType.EnumValue min = type.getValues().get(0);
-      EnumType.EnumValue max = type.getValues().get(type.getValues().size() - 1);
-      defaultCase
-          .beginControlFlow("if (value < $L)", min.getOrdinalValue())
-          .addStatement("return $T.$L", wrapperName, min.getJavaName())
-          .endControlFlow()
-          .beginControlFlow("if (value > $L)", max.getOrdinalValue())
-          .addStatement("return $T.$L", wrapperName, max.getJavaName())
-          .endControlFlow();
-    }
-
-    EnumType.EnumValue defaultValue =
-        protocolEnum.getValues().stream()
-            .filter(ProtocolValue::isDefault)
-            .map(ProtocolValue::getOrdinalValue)
-            .map(type::getEnumValueByOrdinal)
-            .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
-            .findFirst()
-            .orElse(null);
-
-    if (defaultValue == null) {
-      defaultCase.addStatement("return new $T($T.UNRECOGNIZED, value)", wrapperName, enumName);
-    } else {
-      defaultCase.addStatement("return $T.$L", wrapperName, defaultValue.getJavaName());
-    }
-
-    defaultCase.unindent();
-
-    fromIntegerSwitchBlock.add(defaultCase.build()).endControlFlow();
+    fromIntegerSwitchBlock
+        .add("default:\n")
+        .indent()
+        .addStatement("return new $T($T.UNRECOGNIZED, value)", wrapperName, enumName)
+        .unindent()
+        .endControlFlow();
 
     wrapperTypeSpec
         .addMethod(
