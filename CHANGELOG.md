@@ -8,16 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - Miscellaneous javadoc improvements.
 
 ## [1.0.0-RC2] - 2023-01-12
 
 ### Added
+
 - `SequenceStart.zero()` method to create a `SequenceStart` instance with a value of zero.
 - More reserved item types and subtypes.
 - `OnlineCharacter.level` field, which was previously unknown.
 
 ### Changed
+
 - Remove superfluous generated null checks for fields with hardcoded values.
 - Forbid unbounded element types in non-delimited arrays.
 - Change the name and type of `count` fields in `EIF`/`ENF`/`ECF`/`ESF` pub file structs.<br>
@@ -36,6 +39,7 @@ rather than specifying the length of the array of records in that particular fil
 - Enum values are now modeled as classes wrapping a Java enum and integer value, allowing unrecognized values to be persisted after deserialization.
 
 ### Fixed
+
 - Fix a codegen issue where dummy fields would not be written if a non-empty `EOWriter` was used for serialization.
 - Fix a codegen issue where dummy fields would not be written if preceded by a null optional field.
 - Fix a codegen issue where dummy fields would always be read during deserialization.
