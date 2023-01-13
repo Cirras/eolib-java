@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.lang.model.element.Modifier;
@@ -320,6 +321,48 @@ public final class CodeGenerator {
                 .addParameter(int.class, "value")
                 .returns(wrapperName)
                 .addCode(fromIntegerSwitchBlock.build())
+                .build())
+        .addMethod(
+            MethodSpec.methodBuilder("hashCode")
+                .addJavadoc("Returns a hash code value for the object.")
+                .addJavadoc("\n\n")
+                .addJavadoc("@return a hash code value for this object")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(int.class)
+                .addStatement("return $T.hash(enumValue, integerValue)", Objects.class)
+                .build())
+        .addMethod(
+            MethodSpec.methodBuilder("equals")
+                .addJavadoc("Indicates whether some other object is \"equal to\" this one.")
+                .addJavadoc("\n\n")
+                .addJavadoc("@param obj the reference object with which to compare\n")
+                .addJavadoc(
+                    "@return true if this object is the same as the obj argument; false otherwise")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(Object.class, "obj")
+                .returns(boolean.class)
+                .beginControlFlow("if (this == obj)")
+                .addStatement("return true")
+                .endControlFlow()
+                .beginControlFlow("if (obj == null || getClass() != obj.getClass())")
+                .addStatement("return false")
+                .endControlFlow()
+                .addStatement("$1T other = ($1T) obj", wrapperName)
+                .addStatement(
+                    "return enumValue == other.enumValue && integerValue == other.integerValue",
+                    Objects.class)
+                .build())
+        .addMethod(
+            MethodSpec.methodBuilder("toString")
+                .addJavadoc("Returns a string representation of the object.")
+                .addJavadoc("\n\n")
+                .addJavadoc("@return a string representation of the o78ubject")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(String.class)
+                .addStatement("  return enumValue.name() + \"(\" + integerValue + \")\"")
                 .build())
         .addType(enumTypeSpec.build());
 
