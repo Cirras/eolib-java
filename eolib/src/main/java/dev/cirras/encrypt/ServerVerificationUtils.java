@@ -15,9 +15,9 @@ public class ServerVerificationUtils {
    *
    * <ul>
    *   <li>The client sends an integer value to the server in the INIT_INIT client packet, where it
-   *       is referred to as the {@code challenge} value.
-   *   <li>The server hashes the value and sends it back in the INIT_INIT server packet.
-   *   <li>The client hashes the value and compares it to the value sent by the server.
+   *       is referred to as the {@code challenge}.
+   *   <li>The server hashes the value and sends the hash back in the INIT_INIT server packet.
+   *   <li>The client hashes the value and compares it to the hash sent by the server.
    *   <li>If the hashes don't match, the client drops the connection.
    * </ul>
    *
