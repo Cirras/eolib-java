@@ -24,7 +24,7 @@ public class ServerVerificationUtils {
    * @param challenge the challenge value sent by the client
    * @return the hashed challenge value
    * @see InitInitClientPacket#getChallenge()
-   * @see InitInitServerPacket.ReplyCodeDataOK#getChallengeResponse()
+   * @see InitInitServerPacket.ReplyCodeDataOk#getChallengeResponse()
    */
   public static int serverVerificationHash(int challenge) {
     ++challenge;
