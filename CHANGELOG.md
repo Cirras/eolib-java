@@ -16,10 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Consistently treat acronyms in PascalCase names as words.
 - Miscellaneous javadoc improvements.
+- Expand `LoginReplyServerPacket.character_list` field into new `characters` array field.
+- Expand `CharacterReplyServerPacket.ReplyCodeData5.character_list` field into new `characters` array field.
+- Expand `CharacterReplyServerPacket.ReplyCodeData6.character_list` field into new `characters` array field.
 
 ### Removed
 
 - Enum value `default` and `clamp` behaviors. These were removed from `eo-protocol` following the requirement to persist unrecognized enum values after deserialization.
+- `CharacterSelectionList` class.
 
 ## [1.0.0-RC2] - 2023-01-12
 
