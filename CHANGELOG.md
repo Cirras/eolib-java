@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expand `LoginReplyServerPacket.character_list` field into new `characters` array field.
 - Expand `CharacterReplyServerPacket.ReplyCodeData5.character_list` field into new `characters` array field.
 - Expand `CharacterReplyServerPacket.ReplyCodeData6.character_list` field into new `characters` array field.
+- Change type of `ItemDropClientPacket.coords` to the new `ByteCoords`.<br>
+The `ByteCoords.x` and `ByteCoords.y` fields could be 255 for "drop at current coordinates", but
+otherwise must be decoded to the correct x and y values with `EncodingUtils.decodeNumber`.
 
 ### Removed
 
