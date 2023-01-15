@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `toString`/`equals`/`hashCode` methods for enum wrapper types.
+- "NO" reply strings in `CharacterReplyServerPacket` serialization.
 
 ### Changed
 
