@@ -1,6 +1,6 @@
 package dev.cirras.packet;
 
-import dev.cirras.data.EONumericLimits;
+import dev.cirras.data.EoNumericLimits;
 import dev.cirras.protocol.net.server.InitInitServerPacket;
 import java.util.Random;
 
@@ -61,7 +61,7 @@ public final class InitSequenceStart extends AbstractSequenceStart {
   public static InitSequenceStart generate(Random random) {
     int value = random.nextInt(1757);
     int seq1Max = (value + 13) / 7;
-    int seq1Min = Math.max(0, (value - (EONumericLimits.CHAR_MAX - 1) + 13 + 6) / 7);
+    int seq1Min = Math.max(0, (value - (EoNumericLimits.CHAR_MAX - 1) + 13 + 6) / 7);
 
     int seq1 = random.nextInt(seq1Max - seq1Min) + seq1Min;
     int seq2 = value - seq1 * 7 + 13;

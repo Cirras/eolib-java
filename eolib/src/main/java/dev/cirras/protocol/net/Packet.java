@@ -1,6 +1,6 @@
 package dev.cirras.protocol.net;
 
-import dev.cirras.data.EOWriter;
+import dev.cirras.data.EoWriter;
 
 /** Object representation of a packet in the EO network protocol. */
 public interface Packet {
@@ -23,5 +23,5 @@ public interface Packet {
    *
    * @param writer the writer that this packet will be serialized to
    */
-  void serialize(EOWriter writer);
+  void serialize(EoWriter writer);
 }

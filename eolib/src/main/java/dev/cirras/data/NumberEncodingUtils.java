@@ -11,21 +11,21 @@ public final class NumberEncodingUtils {
   public static byte[] encodeNumber(int number) {
     int value = number;
     int d = 0xFE;
-    if (Integer.compareUnsigned(number, EONumericLimits.THREE_MAX) >= 0) {
-      d = Integer.divideUnsigned(value, EONumericLimits.THREE_MAX) + 1;
-      value = Integer.remainderUnsigned(value, EONumericLimits.THREE_MAX);
+    if (Integer.compareUnsigned(number, EoNumericLimits.THREE_MAX) >= 0) {
+      d = Integer.divideUnsigned(value, EoNumericLimits.THREE_MAX) + 1;
+      value = Integer.remainderUnsigned(value, EoNumericLimits.THREE_MAX);
     }
 
     int c = 0xFE;
-    if (Integer.compareUnsigned(number, EONumericLimits.SHORT_MAX) >= 0) {
-      c = Integer.divideUnsigned(value, EONumericLimits.SHORT_MAX) + 1;
-      value = Integer.remainderUnsigned(value, EONumericLimits.SHORT_MAX);
+    if (Integer.compareUnsigned(number, EoNumericLimits.SHORT_MAX) >= 0) {
+      c = Integer.divideUnsigned(value, EoNumericLimits.SHORT_MAX) + 1;
+      value = Integer.remainderUnsigned(value, EoNumericLimits.SHORT_MAX);
     }
 
     int b = 0xFE;
-    if (Integer.compareUnsigned(number, EONumericLimits.CHAR_MAX) >= 0) {
-      b = Integer.divideUnsigned(value, EONumericLimits.CHAR_MAX) + 1;
-      value = Integer.remainderUnsigned(value, EONumericLimits.CHAR_MAX);
+    if (Integer.compareUnsigned(number, EoNumericLimits.CHAR_MAX) >= 0) {
+      b = Integer.divideUnsigned(value, EoNumericLimits.CHAR_MAX) + 1;
+      value = Integer.remainderUnsigned(value, EoNumericLimits.CHAR_MAX);
     }
 
     int a = value + 1;
@@ -57,13 +57,13 @@ public final class NumberEncodingUtils {
           result += value;
           break;
         case 1:
-          result += EONumericLimits.CHAR_MAX * value;
+          result += EoNumericLimits.CHAR_MAX * value;
           break;
         case 2:
-          result += EONumericLimits.SHORT_MAX * value;
+          result += EoNumericLimits.SHORT_MAX * value;
           break;
         case 3:
-          result += EONumericLimits.THREE_MAX * value;
+          result += EoNumericLimits.THREE_MAX * value;
           break;
       }
     }

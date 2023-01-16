@@ -3,7 +3,7 @@ package dev.cirras.data;
 import java.nio.charset.Charset;
 
 /** A class for writing EO data to a sequence of bytes. */
-public final class EOWriter {
+public final class EoWriter {
   private byte[] data = new byte[16];
   private int length = 0;
 
@@ -34,10 +34,10 @@ public final class EOWriter {
    * Adds an encoded 1-byte integer to the writer data.
    *
    * @param number the number to encode and add
-   * @throws IllegalArgumentException if the value is not below {@link EONumericLimits#CHAR_MAX}.
+   * @throws IllegalArgumentException if the value is not below {@link EoNumericLimits#CHAR_MAX}.
    */
   public void addChar(int number) {
-    checkNumberSize(number, EONumericLimits.CHAR_MAX - 1);
+    checkNumberSize(number, EoNumericLimits.CHAR_MAX - 1);
     byte[] bytes = NumberEncodingUtils.encodeNumber(number);
     addBytes(bytes, 1);
   }
@@ -46,10 +46,10 @@ public final class EOWriter {
    * Adds an encoded 2-byte integer to the writer data.
    *
    * @param number the number to encode and add
-   * @throws IllegalArgumentException if the value is not below {@link EONumericLimits#SHORT_MAX}.
+   * @throws IllegalArgumentException if the value is not below {@link EoNumericLimits#SHORT_MAX}.
    */
   public void addShort(int number) {
-    checkNumberSize(number, EONumericLimits.SHORT_MAX - 1);
+    checkNumberSize(number, EoNumericLimits.SHORT_MAX - 1);
     byte[] bytes = NumberEncodingUtils.encodeNumber(number);
     addBytes(bytes, 2);
   }
@@ -58,10 +58,10 @@ public final class EOWriter {
    * Adds an encoded 3-byte integer to the writer data.
    *
    * @param number the number to encode and add
-   * @throws IllegalArgumentException if the value is not below {@link EONumericLimits#THREE_MAX}.
+   * @throws IllegalArgumentException if the value is not below {@link EoNumericLimits#THREE_MAX}.
    */
   public void addThree(int number) {
-    checkNumberSize(number, EONumericLimits.THREE_MAX - 1);
+    checkNumberSize(number, EoNumericLimits.THREE_MAX - 1);
     byte[] bytes = NumberEncodingUtils.encodeNumber(number);
     addBytes(bytes, 3);
   }
@@ -70,10 +70,10 @@ public final class EOWriter {
    * Adds an encoded 4-byte integer to the writer data.
    *
    * @param number the number to encode and add
-   * @throws IllegalArgumentException if the value is not below {@link EONumericLimits#INT_MAX}.
+   * @throws IllegalArgumentException if the value is not below {@link EoNumericLimits#INT_MAX}.
    */
   public void addInt(int number) {
-    checkNumberSize(number, EONumericLimits.INT_MAX - 1);
+    checkNumberSize(number, EoNumericLimits.INT_MAX - 1);
     byte[] bytes = NumberEncodingUtils.encodeNumber(number);
     addBytes(bytes, 4);
   }

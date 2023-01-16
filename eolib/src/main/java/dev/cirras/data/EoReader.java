@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
  * @see <a href="https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md">Chunked
  *     Reading</a>
  */
-public final class EOReader {
+public final class EoReader {
   private final byte[] data;
   private int position = 0;
   private boolean chunkedReadingMode = false;
@@ -23,7 +23,7 @@ public final class EOReader {
    *
    * @param data the byte array containing the input data
    */
-  public EOReader(byte[] data) {
+  public EoReader(byte[] data) {
     this.data = data;
   }
 
@@ -161,7 +161,7 @@ public final class EOReader {
    *
    * <ul>
    *   <li>the reader will treat {@code 0xFF} bytes as the end of the current chunk.
-   *   <li>{@link EOReader#nextChunk} can be called to move to the next chunk.
+   *   <li>{@link EoReader#nextChunk} can be called to move to the next chunk.
    * </ul>
    *
    * @param chunkedReadingMode the new chunked reading mode

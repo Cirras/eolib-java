@@ -1,6 +1,6 @@
 package dev.cirras.packet;
 
-import dev.cirras.data.EONumericLimits;
+import dev.cirras.data.EoNumericLimits;
 import dev.cirras.protocol.net.server.ConnectionPlayerServerPacket;
 import java.util.Random;
 
@@ -60,7 +60,7 @@ public final class PingSequenceStart extends AbstractSequenceStart {
    */
   public static PingSequenceStart generate(Random random) {
     int value = random.nextInt(1757);
-    int seq1 = value + random.nextInt(EONumericLimits.CHAR_MAX - 1);
+    int seq1 = value + random.nextInt(EoNumericLimits.CHAR_MAX - 1);
     int seq2 = seq1 - value;
 
     return new PingSequenceStart(value, seq1, seq2);

@@ -116,7 +116,7 @@ class EncryptionUtilsTest {
   void testFlipMSB(String string, String expectedFlippedMSB) {
     byte[] bytes = toBytes(string);
 
-    EncryptionUtils.flipMSB(bytes);
+    EncryptionUtils.flipMsb(bytes);
     String flippedMSB = fromByes(bytes);
 
     assertThat(flippedMSB).isEqualTo(expectedFlippedMSB);

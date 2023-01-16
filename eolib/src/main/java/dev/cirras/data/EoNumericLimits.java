@@ -5,7 +5,7 @@ package dev.cirras.data;
  *
  * <p>The largest valid value for each type is {@code TYPE_MAX - 1}.
  */
-public final class EONumericLimits {
+public final class EoNumericLimits {
   /** The maximum value of an EO char (1-byte encoded integer type) */
   public static final int CHAR_MAX = 253;
 
@@ -24,7 +24,7 @@ public final class EONumericLimits {
    */
   public static final int INT_MAX = (int) ((long) CHAR_MAX * CHAR_MAX * CHAR_MAX * CHAR_MAX);
 
-  private EONumericLimits() {
+  private EoNumericLimits() {
     // constants class
   }
 }

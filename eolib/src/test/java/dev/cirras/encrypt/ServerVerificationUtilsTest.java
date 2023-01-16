@@ -2,7 +2,7 @@ package dev.cirras.encrypt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import dev.cirras.data.EONumericLimits;
+import dev.cirras.data.EoNumericLimits;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,7 +21,7 @@ final class ServerVerificationUtilsTest {
           Arguments.of(5, 613210),
           Arguments.of(12345, 266403),
           Arguments.of(100_000, 145554),
-          Arguments.of(EONumericLimits.THREE_MAX - 1, 138566));
+          Arguments.of(EoNumericLimits.THREE_MAX - 1, 138566));
     }
   }
 

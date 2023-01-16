@@ -13,11 +13,11 @@ public final class JavaPoetUtils {
   }
 
   public static ClassName getWriterTypeName() {
-    return ClassName.get("dev.cirras.data", "EOWriter");
+    return ClassName.get("dev.cirras.data", "EoWriter");
   }
 
   public static ClassName getReaderTypeName() {
-    return ClassName.get("dev.cirras.data", "EOReader");
+    return ClassName.get("dev.cirras.data", "EoReader");
   }
 
   public static ClassName getSerializationErrorTypeName() {

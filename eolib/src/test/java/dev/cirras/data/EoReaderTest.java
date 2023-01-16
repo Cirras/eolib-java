@@ -8,23 +8,23 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class EOReaderTest {
+class EoReaderTest {
   @ParameterizedTest(name = "getByte() should return {0}")
   @ValueSource(ints = {0x00, 0x01, 0x02, 0x80, 0xFD, 0xFE, 0xFF})
   void testGetByte(int byteValue) {
-    EOReader reader = createReader(byteValue);
+    EoReader reader = createReader(byteValue);
     assertThat(reader.getByte()).inHexadecimal().isEqualTo(byteValue);
   }
 
   @Test
   void testOverReadByte() {
-    EOReader reader = createReader();
+    EoReader reader = createReader();
     assertThat(reader.getByte()).inHexadecimal().isEqualTo(0x00);
   }
 
   @Test
   void testGetChar() {
-    EOReader reader = createReader(0x01, 0x02, 0x80, 0x81, 0xFD, 0xFE, 0xFF);
+    EoReader reader = createReader(0x01, 0x02, 0x80, 0x81, 0xFD, 0xFE, 0xFF);
     assertThat(reader.getChar()).isZero();
     assertThat(reader.getChar()).isEqualTo(1);
     assertThat(reader.getChar()).isEqualTo(127);
@@ -36,7 +36,7 @@ class EOReaderTest {
 
   @Test
   void testGetShort() {
-    EOReader reader =
+    EoReader reader =
         createReader(
             0x01, 0xFE, 0x02, 0xFE, 0x80, 0xFE, 0xFD, 0xFE, 0xFE, 0xFE, 0xFE, 0x80, 0x7F, 0x7F,
             0xFD, 0xFD);
@@ -52,7 +52,7 @@ class EOReaderTest {
 
   @Test
   void testGetThree() {
-    EOReader reader =
+    EoReader reader =
         createReader(
             0x01, 0xFE, 0xFE, 0x02, 0xFE, 0xFE, 0x80, 0xFE, 0xFE, 0xFD, 0xFE, 0xFE, 0xFE, 0xFE,
             0xFE, 0xFE, 0x80, 0x81, 0x7F, 0x7F, 0xFE, 0xFD, 0xFD, 0xFE, 0xFD, 0xFD, 0xFD);
@@ -69,7 +69,7 @@ class EOReaderTest {
 
   @Test
   void testGetInt() {
-    EOReader reader =
+    EoReader reader =
         createReader(
             0x01, 0xFE, 0xFE, 0xFE, 0x02, 0xFE, 0xFE, 0xFE, 0x80, 0xFE, 0xFE, 0xFE, 0xFD, 0xFE,
             0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0x80, 0x81, 0x82, 0x7F, 0x7F, 0xFE, 0xFE,
@@ -90,27 +90,27 @@ class EOReaderTest {
 
   @Test
   void testGetString() {
-    EOReader reader = createReader("Hello, World!");
+    EoReader reader = createReader("Hello, World!");
     assertThat(reader.getString()).isEqualTo("Hello, World!");
   }
 
   @Test
   void testGetFixedString() {
-    EOReader reader = createReader("foobar");
+    EoReader reader = createReader("foobar");
     assertThat(reader.getFixedString(3)).isEqualTo("foo");
     assertThat(reader.getFixedString(3)).isEqualTo("bar");
   }
 
   @Test
   void testPaddedGetFixedString() {
-    EOReader reader = createReader("fooÿbarÿÿÿ");
+    EoReader reader = createReader("fooÿbarÿÿÿ");
     assertThat(reader.getFixedString(4, true)).isEqualTo("foo");
     assertThat(reader.getFixedString(6, true)).isEqualTo("bar");
   }
 
   @Test
   void testChunkedGetString() {
-    EOReader reader = createReader("Hello,ÿWorld!");
+    EoReader reader = createReader("Hello,ÿWorld!");
     reader.setChunkedReadingMode(true);
 
     assertThat(reader.getString()).isEqualTo("Hello,");
@@ -121,27 +121,27 @@ class EOReaderTest {
 
   @Test
   void testGetNegativeLengthString() {
-    EOReader reader = createReader("foo");
+    EoReader reader = createReader("foo");
     assertThatThrownBy(() -> reader.getFixedString(-1))
         .isExactlyInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void testGetEncodedString() {
-    EOReader reader = createReader("!;a-^H s^3a:)");
+    EoReader reader = createReader("!;a-^H s^3a:)");
     assertThat(reader.getEncodedString()).isEqualTo("Hello, World!");
   }
 
   @Test
   void testFixedGetEncodedString() {
-    EOReader reader = createReader("^0g[>k");
+    EoReader reader = createReader("^0g[>k");
     assertThat(reader.getFixedEncodedString(3)).isEqualTo("foo");
     assertThat(reader.getFixedEncodedString(3)).isEqualTo("bar");
   }
 
   @Test
   void testPaddedGetFixedEncodedString() {
-    EOReader reader = createReader("ÿ0^9ÿÿÿ-l=S>k");
+    EoReader reader = createReader("ÿ0^9ÿÿÿ-l=S>k");
     assertThat(reader.getFixedEncodedString(4, true)).isEqualTo("foo");
     assertThat(reader.getFixedEncodedString(6, true)).isEqualTo("bar");
     assertThat(reader.getFixedEncodedString(3, true)).isEqualTo("baz");
@@ -149,7 +149,7 @@ class EOReaderTest {
 
   @Test
   void testChunkedGetEncodedString() {
-    EOReader reader = createReader("E0a3hWÿ!;a-^H");
+    EoReader reader = createReader("E0a3hWÿ!;a-^H");
     reader.setChunkedReadingMode(true);
 
     assertThat(reader.getEncodedString()).isEqualTo("Hello,");
@@ -160,14 +160,14 @@ class EOReaderTest {
 
   @Test
   void testGetNegativeLengthEncodedString() {
-    EOReader reader = createReader("^0g");
+    EoReader reader = createReader("^0g");
     assertThatThrownBy(() -> reader.getFixedEncodedString(-1))
         .isExactlyInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void testSetChunkedReadingMode() {
-    EOReader reader = createReader();
+    EoReader reader = createReader();
     assertThat(reader.getChunkedReadingMode()).isFalse();
     reader.setChunkedReadingMode(true);
     assertThat(reader.getChunkedReadingMode()).isTrue();
@@ -175,7 +175,7 @@ class EOReaderTest {
 
   @Test
   void testGetRemaining() {
-    EOReader reader =
+    EoReader reader =
         createReader(0x01, 0x03, 0x04, 0xFE, 0x05, 0xFE, 0xFE, 0x06, 0xFE, 0xFE, 0xFE);
 
     assertThat(reader.getRemaining()).isEqualTo(11);
@@ -196,7 +196,7 @@ class EOReaderTest {
 
   @Test
   void testChunkedGetRemaining() {
-    EOReader reader =
+    EoReader reader =
         createReader(0x01, 0x03, 0x04, 0xFF, 0x05, 0xFE, 0xFE, 0x06, 0xFE, 0xFE, 0xFE);
     reader.setChunkedReadingMode(true);
 
@@ -214,7 +214,7 @@ class EOReaderTest {
 
   @Test
   void testNextChunk() {
-    EOReader reader = createReader(0x01, 0x02, 0xFF, 0x03, 0x04, 0x5, 0xFF, 0x06);
+    EoReader reader = createReader(0x01, 0x02, 0xFF, 0x03, 0x04, 0x5, 0xFF, 0x06);
     reader.setChunkedReadingMode(true);
 
     assertThat(reader.getPosition()).isZero();
@@ -234,13 +234,13 @@ class EOReaderTest {
 
   @Test
   void testNextChunkNotInChunkedReadingMode() {
-    EOReader reader = createReader(0x01, 0x02, 0xFF, 0x03, 0x04, 0x5, 0xFF, 0x06);
+    EoReader reader = createReader(0x01, 0x02, 0xFF, 0x03, 0x04, 0x5, 0xFF, 0x06);
     assertThatThrownBy(reader::nextChunk).isExactlyInstanceOf(IllegalStateException.class);
   }
 
   @Test
   void testNextChunkWithChunkedReadingToggledInBetween() {
-    EOReader reader = createReader(0x01, 0x02, 0xFF, 0x03, 0x04, 0x5, 0xFF, 0x06);
+    EoReader reader = createReader(0x01, 0x02, 0xFF, 0x03, 0x04, 0x5, 0xFF, 0x06);
     assertThat(reader.getPosition()).isZero();
 
     reader.setChunkedReadingMode(true);
@@ -267,7 +267,7 @@ class EOReaderTest {
   @Test
   void testUnderRead() {
     // See: https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md#1-under-read
-    EOReader reader =
+    EoReader reader =
         createReader(0x7C, 0x67, 0x61, 0x72, 0x62, 0x61, 0x67, 0x65, 0xFF, 0xCA, 0x31);
     reader.setChunkedReadingMode(true);
 
@@ -279,7 +279,7 @@ class EOReaderTest {
   @Test
   void testOverRead() {
     // See: https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md#2-over-read
-    EOReader reader = createReader(0xFF, 0x7C);
+    EoReader reader = createReader(0xFF, 0x7C);
     reader.setChunkedReadingMode(true);
 
     assertThat(reader.getInt()).isZero();
@@ -290,7 +290,7 @@ class EOReaderTest {
   @Test
   void testDoubleRead() {
     // See: https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md#3-double-read
-    EOReader reader = createReader(0xFF, 0x7C, 0xCA, 0x31);
+    EoReader reader = createReader(0xFF, 0x7C, 0xCA, 0x31);
 
     // Reading all 4 bytes of the input data
     assertThat(reader.getInt()).isEqualTo(790222478);
@@ -304,16 +304,16 @@ class EOReaderTest {
     assertThat(reader.getShort()).isEqualTo(12345);
   }
 
-  private static EOReader createReader(String string) {
+  private static EoReader createReader(String string) {
     byte[] data = string.getBytes(Charset.forName("windows-1252"));
-    return new EOReader(data);
+    return new EoReader(data);
   }
 
-  private static EOReader createReader(int... bytes) {
+  private static EoReader createReader(int... bytes) {
     byte[] data = new byte[bytes.length];
     for (int i = 0; i < data.length; ++i) {
       data[i] = (byte) bytes[i];
     }
-    return new EOReader(data);
+    return new EoReader(data);
   }
 }

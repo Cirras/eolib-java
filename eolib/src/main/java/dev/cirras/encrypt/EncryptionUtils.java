@@ -96,7 +96,7 @@ public final class EncryptionUtils {
    *
    * @param data the data to flip most significant bits on
    */
-  public static void flipMSB(byte[] data) {
+  public static void flipMsb(byte[] data) {
     for (int i = 0; i < data.length; ++i) {
       if ((data[i] & 0x7F) != 0) {
         data[i] = (byte) (data[i] ^ 0x80);
