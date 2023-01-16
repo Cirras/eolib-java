@@ -9,7 +9,6 @@
   </parent>
 
   <artifactId>protocol-code-generator</artifactId>
-  <version>1.0.0-RC2</version>
 
   <name>EOLib :: Protocol Code Generator</name>
 

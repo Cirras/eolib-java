@@ -9,7 +9,6 @@
   </parent>
 
   <artifactId>eolib</artifactId>
-  <version>1.0.0-RC2</version>
 
   <name>EOLib</name>
   <description>Core library for writing applications related to Endless Online.</description>
@@ -51,7 +50,7 @@
       <plugin>
         <groupId>dev.cirras</groupId>
         <artifactId>protocol-code-generator-maven-plugin</artifactId>
-        <version>1.0.0-RC2</version>
+        <version>${project.version}</version>
         <executions>
           <execution>
             <goals>
