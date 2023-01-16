@@ -10,10 +10,9 @@
 
   <artifactId>protocol-code-generator-maven-plugin</artifactId>
   <version>1.0.0-RC2</version>
-
   <packaging>maven-plugin</packaging>
 
-  <name>Protocol Code Generator Maven Plugin</name>
+  <name>EOLib :: Protocol Code Generator Maven Plugin</name>
 
   <properties>
     <maven.version>3.8.6</maven.version>

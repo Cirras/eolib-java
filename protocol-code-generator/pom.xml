@@ -11,7 +11,7 @@
   <artifactId>protocol-code-generator</artifactId>
   <version>1.0.0-RC2</version>
 
-  <name>Protocol Code Generator</name>
+  <name>EOLib :: Protocol Code Generator</name>
 
   <dependencies>
     <dependency>

@@ -5,8 +5,9 @@
   <groupId>dev.cirras</groupId>
   <artifactId>eolib-parent</artifactId>
   <version>1.0.0-RC2</version>
-
   <packaging>pom</packaging>
+
+  <name>EOLib :: Parent</name>
 
   <modules>
     <module>protocol-code-generator</module>
