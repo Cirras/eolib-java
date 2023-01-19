@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-RC3] - 2023-01-19
+
 ### Added
 
 - `toString`/`equals`/`hashCode` methods for enum wrapper types.
@@ -91,5 +93,6 @@ With this change, the `InitReply.FILE*` enum values are now `InitReply.FILE_*`.
   - Data encryption
   - Packet sequencer
 
-[Unreleased]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC2...HEAD
+[Unreleased]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC3...HEAD
+[1.0.0-RC3]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC2...v1.0.0-RC3
 [1.0.0-RC2]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC1...v1.0.0-RC2
