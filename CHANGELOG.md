@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `NpcKillStealProtectionState` enum.
 - `CastReplyServerPacket.killStealProtection` field.
 - `NpcReplyServerPacket.killStealProtection` field.
+
+### Fixed
+
+- Fix (de)serialization issues around empty delimited arrays with trailing breaks.
+
 ## [1.0.0-RC3] - 2023-01-19
 
 ### Added

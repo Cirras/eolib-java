@@ -39,6 +39,7 @@ class FieldCodeGenerator {
   private final String comment;
   private final boolean arrayField;
   private final boolean delimited;
+  private final boolean trailingDelimiter;
   private final boolean lengthField;
   private final int offset;
 
@@ -55,6 +56,7 @@ class FieldCodeGenerator {
       String comment,
       boolean arrayField,
       boolean delimited,
+      boolean trailingDelimiter,
       boolean lengthField,
       int offset) {
     this.typeFactory = typeFactory;
@@ -69,6 +71,7 @@ class FieldCodeGenerator {
     this.comment = comment;
     this.arrayField = arrayField;
     this.delimited = delimited;
+    this.trailingDelimiter = trailingDelimiter;
     this.lengthField = lengthField;
     this.offset = offset;
     this.validate();
@@ -118,6 +121,10 @@ class FieldCodeGenerator {
       if (delimited) {
         throw new CodeGenerationError("Only arrays can be delimited.");
       }
+    }
+
+    if (!delimited && trailingDelimiter) {
+      throw new CodeGenerationError("Only delimited arrays can have a trailing delimiter.");
     }
   }
 
@@ -359,7 +366,7 @@ class FieldCodeGenerator {
         arraySizeExpression = "data." + javaName + ".size()";
       }
       data.getSerialize().beginControlFlow("for (int i = 0; i < $L; ++i)", arraySizeExpression);
-      if (delimited) {
+      if (delimited && !trailingDelimiter) {
         data.getSerialize()
             .beginControlFlow("if (i > 0)")
             .addStatement("writer.addByte(0xFF)")
@@ -370,6 +377,9 @@ class FieldCodeGenerator {
     data.getSerialize().add(getWriteStatement());
 
     if (arrayField) {
+      if (delimited && trailingDelimiter) {
+        data.getSerialize().addStatement("writer.addByte(0xFF)");
+      }
       data.getSerialize().endControlFlow();
     }
 
@@ -590,6 +600,7 @@ class FieldCodeGenerator {
     if (initialCapacity == null) {
       initialCapacity = "";
     }
+
     data.getDeserialize()
         .addStatement(
             "data.$L = new $T($L)",
@@ -606,14 +617,18 @@ class FieldCodeGenerator {
     data.getDeserialize().add(getReadStatement());
 
     if (delimited) {
-      if (arraySizeExpression != null) {
+      boolean needsGuard = !trailingDelimiter && arraySizeExpression != null;
+      if (needsGuard) {
         data.getDeserialize().beginControlFlow("if (i + 1 < $L)", arraySizeExpression);
       }
+
       data.getDeserialize().addStatement("reader.nextChunk()");
-      if (arraySizeExpression != null) {
+
+      if (needsGuard) {
         data.getDeserialize().endControlFlow();
       }
     }
+
     data.getDeserialize().endControlFlow();
   }
 
@@ -792,6 +807,7 @@ class FieldCodeGenerator {
     private boolean arrayField;
     private boolean lengthField;
     private boolean delimited;
+    private boolean trailingDelimiter;
 
     private Builder(
         TypeFactory typeFactory,
@@ -847,6 +863,11 @@ class FieldCodeGenerator {
       return this;
     }
 
+    Builder trailingDelimiter(boolean trailingDelimiter) {
+      this.trailingDelimiter = trailingDelimiter;
+      return this;
+    }
+
     Builder lengthField(boolean lengthField) {
       this.lengthField = lengthField;
       return this;
@@ -874,6 +895,7 @@ class FieldCodeGenerator {
           comment,
           arrayField,
           delimited,
+          trailingDelimiter,
           lengthField,
           offset);
     }

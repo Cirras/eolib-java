@@ -111,6 +111,7 @@ final class ObjectCodeGenerator {
                     .orElse(null))
             .arrayField(true)
             .delimited(protocolArray.isDelimited())
+            .trailingDelimiter(protocolArray.hasTrailingDelimiter())
             .build();
 
     fieldCodeGenerator.generateField();
