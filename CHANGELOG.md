@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `NpcKillStealProtectionState` enum.
+- `CastReplyServerPacket.killStealProtection` field.
+- `NpcReplyServerPacket.killStealProtection` field.
 ## [1.0.0-RC3] - 2023-01-19
 
 ### Added
