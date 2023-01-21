@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `CharacterElementalStats` class.
 - `NpcKillStealProtectionState` enum.
 - `CastReplyServerPacket.killStealProtection` field.
 - `NpcReplyServerPacket.killStealProtection` field.
+
+### Changed
+
+- Consolidate the 6 `CharacterStatsInfoLookup` element fields into new `elementalStats` field.
 
 ### Fixed
 
