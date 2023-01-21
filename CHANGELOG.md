@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix (de)serialization issues around empty delimited arrays with trailing breaks.
+- Add missing `ItemReplyServerPacket.usedItem` field.
+- Add missing `ItemReplyServerPacket.weight` field.
 
 ## [1.0.0-RC3] - 2023-01-19
 
