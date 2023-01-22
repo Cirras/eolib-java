@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix (de)serialization issues around empty delimited arrays with trailing breaks.
 - Add missing `ItemReplyServerPacket.usedItem` field.
 - Add missing `ItemReplyServerPacket.weight` field.
+- Add missing `SpellTargetOtherClientPacket.victimId` field.
 - Change incorrect `PartyMember.leader` field type from `char` to `bool`.
 - Change incorrect `PartyMember.level` field type from `bool` to `char`.
 
