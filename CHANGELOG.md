@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix codegen issue where string arrays with defined lengths would erroneously treat elements as fixed-size strings.
 - Fix (de)serialization issues around empty delimited arrays with trailing breaks.
 - Add missing `ItemReplyServerPacket.usedItem` field.
 - Add missing `ItemReplyServerPacket.weight` field.

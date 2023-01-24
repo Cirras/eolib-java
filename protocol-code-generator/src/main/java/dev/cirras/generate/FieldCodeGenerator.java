@@ -491,9 +491,10 @@ class FieldCodeGenerator {
     }
 
     if (type instanceof BasicType) {
+      String lengthExpression = arrayField ? null : getLengthExpression();
       return CodeBlock.builder()
           .addStatement(
-              getWriteStatementForBasicType((BasicType) type, getLengthExpression(), padded),
+              getWriteStatementForBasicType((BasicType) type, lengthExpression, padded),
               valueExpression)
           .build();
     } else if (type instanceof StructType) {
@@ -650,8 +651,9 @@ class FieldCodeGenerator {
     }
 
     if (type instanceof BasicType) {
+      String lengthExpression = arrayField ? null : getLengthExpression();
       String readBasicType =
-          getReadStatementForBasicType((BasicType) type, getLengthExpression(), padded);
+          getReadStatementForBasicType((BasicType) type, lengthExpression, padded);
       String offsetExpression = getLengthOffsetExpression(offset);
       if (offsetExpression != null) {
         readBasicType += offsetExpression;
