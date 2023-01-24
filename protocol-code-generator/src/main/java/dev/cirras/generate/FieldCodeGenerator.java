@@ -262,9 +262,15 @@ class FieldCodeGenerator {
     MethodSpec.Builder getter =
         MethodSpec.methodBuilder("get" + NameUtils.snakeCaseToPascalCase(name))
             .addJavadoc(javadoc)
-            .addModifiers(Modifier.PUBLIC)
-            .returns(javaTypeName)
-            .addStatement("return this.$L", javaName);
+            .addModifiers(Modifier.PUBLIC);
+
+    if (optional) {
+      getter
+          .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), javaTypeName))
+          .addStatement("return $T.ofNullable(this.$L)", Optional.class, javaName);
+    } else {
+      getter.returns(javaTypeName).addStatement("return this.$L", javaName);
+    }
 
     data.getTypeSpec().addMethod(getter.build());
 
@@ -576,10 +582,18 @@ class FieldCodeGenerator {
   }
 
   void generateDeserialize() {
+    if (optional) {
+      data.getDeserialize().beginControlFlow("if (reader.getRemaining() > 0)");
+    }
+
     if (arrayField) {
       generateDeserializeArray();
     } else {
       data.getDeserialize().add(getReadStatement());
+    }
+
+    if (optional) {
+      data.getDeserialize().endControlFlow();
     }
   }
 

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Consolidate the 6 `CharacterStatsInfoLookup` element fields into new `elementalStats` field.
+- Change return type of optional field getters to `Optional<T>`.
 
 ### Fixed
 
