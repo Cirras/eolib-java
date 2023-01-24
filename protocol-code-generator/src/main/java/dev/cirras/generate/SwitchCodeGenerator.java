@@ -13,10 +13,7 @@ import dev.cirras.util.NameUtils;
 import dev.cirras.util.NumberUtils;
 import dev.cirras.util.StringUtils;
 import dev.cirras.xml.ProtocolCase;
-import dev.cirras.xml.ProtocolChunked;
 import dev.cirras.xml.ProtocolComment;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.lang.model.element.Modifier;
@@ -172,23 +169,7 @@ final class SwitchCodeGenerator {
     ObjectCodeGenerator objectCodeGenerator =
         new ObjectCodeGenerator(caseDataTypeName, typeFactory, caseContext);
 
-    List<Object> instructions;
-    if (caseContext.isChunkedReadingEnabled()) {
-      caseContext.setChunkedReadingEnabled(false);
-      // Synthesize a <chunked> element
-      ProtocolChunked chunked =
-          new ProtocolChunked() {
-            @Override
-            public List<Object> getInstructions() {
-              return protocolCase.getInstructions();
-            }
-          };
-      instructions = Collections.singletonList(chunked);
-    } else {
-      instructions = protocolCase.getInstructions();
-    }
-
-    instructions.forEach(objectCodeGenerator::generateInstruction);
+    protocolCase.getInstructions().forEach(objectCodeGenerator::generateInstruction);
 
     ObjectCodeGenerator.FieldData fieldData = getFieldData();
     String caseDataTypeJavadoc =

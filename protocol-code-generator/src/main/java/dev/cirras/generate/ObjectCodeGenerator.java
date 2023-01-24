@@ -285,7 +285,6 @@ final class ObjectCodeGenerator {
         .addStatement("$1T data = new $1T()", data.getTypeName())
         .addStatement("boolean oldChunkedReadingMode = reader.getChunkedReadingMode()")
         .beginControlFlow("try")
-        .addStatement("reader.setChunkedReadingMode(false)")
         .addStatement("int readerStartPosition = reader.getPosition()")
         .addCode(data.getDeserialize().build())
         .addStatement("data.byteSize = reader.getPosition() - readerStartPosition")
