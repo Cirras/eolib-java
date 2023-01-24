@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidate the 6 `CharacterStatsInfoLookup` element fields into new `elementalStats` field.
 - Change return type of optional field getters to `Optional<T>`.
 
+### Removed
+
+- `WarpEffect.NONE` enum value.
+
 ### Fixed
 
 - Fix codegen issue where string arrays with defined lengths would erroneously treat elements as fixed-size strings.
