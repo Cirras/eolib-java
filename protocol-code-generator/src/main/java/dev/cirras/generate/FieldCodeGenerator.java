@@ -313,7 +313,7 @@ class FieldCodeGenerator {
 
     if (!notes.isEmpty()) {
       if (!javadoc.isEmpty()) {
-        javadoc.add("\n\n");
+        javadoc.add("\n<br>\n<br>\n");
       }
       javadoc.add("<b>Note:</b>\n\n");
       javadoc.add("<ul>\n");

@@ -8,6 +8,6 @@ public class CommentUtils {
   }
 
   public static String formatComment(String comment) {
-    return StringEscapeUtils.escapeHtml4(comment).replace("\n", "\n<br>\n");
+    return StringEscapeUtils.escapeHtml4(comment).trim().replace("\n", "\n<br>\n");
   }
 }
