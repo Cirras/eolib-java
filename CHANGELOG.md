@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Consolidate the 6 `CharacterStatsInfoLookup` element fields into new `elementalStats` field.
 - Change return type of optional field getters to `Optional<T>`.
+- Make `SpellTargetOtherServerPacket.hp` field optional.
 
 ### Removed
 
@@ -34,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add missing `SpellTargetOtherClientPacket.victimId` field.
 - Change incorrect `PartyMember.leader` field type from `char` to `bool`.
 - Change incorrect `PartyMember.level` field type from `bool` to `char`.
+- Change incorrect `RecoverAgreeServerPacket.healHp` field type from `short` to `int`.
 - Fix javadoc issue where generated notes could appear on the same line as protocol comments.
 
 ## [1.0.0-RC3] - 2023-01-19
