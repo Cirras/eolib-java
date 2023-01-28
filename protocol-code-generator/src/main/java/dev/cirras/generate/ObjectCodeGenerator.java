@@ -399,7 +399,7 @@ final class ObjectCodeGenerator {
     private boolean reachedDummy;
     private boolean needsOldWriterLengthVariable;
     private final Map<String, FieldData> accessibleFields;
-    private final HashMap<String, Boolean> lengthFieldIsReferenced;
+    private final Map<String, Boolean> lengthFieldIsReferenced;
 
     Context() {
       chunkedReadingEnabled = false;
