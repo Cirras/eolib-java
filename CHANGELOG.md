@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Change incorrect `DialogEntryType` underlying type from `char` to `short`.
+
 ## [1.0.0-RC4] - 2023-01-26
 
 ### Added
