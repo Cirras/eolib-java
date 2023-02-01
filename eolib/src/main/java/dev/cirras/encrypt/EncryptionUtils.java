@@ -133,7 +133,7 @@ public final class EncryptionUtils {
     int sequenceLength = 0;
 
     for (int i = 0; i <= data.length; ++i) {
-      if (i != data.length && data[i] % multiple == 0) {
+      if (i != data.length && Byte.toUnsignedInt(data[i]) % multiple == 0) {
         ++sequenceLength;
       } else {
         if (sequenceLength > 1) {

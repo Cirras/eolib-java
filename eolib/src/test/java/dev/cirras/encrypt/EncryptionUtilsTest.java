@@ -80,8 +80,8 @@ class EncryptionUtilsTest {
               "We're ¼ of the way there, so ¾ is remaining.",
               "Wer'e ¼ fo the way there, so ¾ is remaining."),
           Arguments.of("64² = 4096", "64² = 4690"),
-          Arguments.of("© FÒÖ BÃR BÅZ 2014", "© FÒÖ BÃR BÅZ 2014"),
-          Arguments.of("Öxxö Xööx \"Lëïth Säë\" - \"Ÿ\"", "xxÖö Xööx \"Lëïth Säë\" - \"Ÿ\""),
+          Arguments.of("© FÒÖ BÃR BÅZ 2014", "© FÒÖ ÃBR BÅZ 2014"),
+          Arguments.of("Öxxö Xööx \"Lëïth Säë\" - \"Ÿ\"", "Ööxx Xxöö \"Lëïth Säë\" - \"Ÿ\""),
           Arguments.of("Padded with 0xFFÿÿÿÿÿÿÿÿ", "Padded with x0FFÿÿÿÿÿÿÿÿ"),
           Arguments.of(
               "This string contains NUL\0 (value 0) and a € (value 128)",

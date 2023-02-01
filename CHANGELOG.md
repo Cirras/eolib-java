@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix bug in `EncryptionUtils.swapMultiples` where byte values above 127 would be treated incorrectly.
 - Change incorrect `DialogEntryType` underlying type from `char` to `short`.
 
 ## [1.0.0-RC4] - 2023-01-26
