@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 /**
  * A class for reading EO data from a sequence of bytes.
  *
- * <p>{@code EOReader} features a chunked reading mode, which is important for accurate emulation of
+ * <p>{@code EoReader} features a chunked reading mode, which is important for accurate emulation of
  * the official game client.
  *
  * @see <a href="https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md">Chunked
@@ -19,7 +19,7 @@ public final class EoReader {
   private int nextBreak = -1;
 
   /**
-   * Creates a new EOReader instance for the specified data.
+   * Creates a new {@code EoReader} instance for the specified data.
    *
    * @param data the byte array containing the input data
    */
