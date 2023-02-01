@@ -406,7 +406,7 @@ class FieldCodeGenerator {
     } else {
       data.getSerialize().addStatement("boolean reachedNullOptional = data.$L == null", javaName);
     }
-    data.getSerialize().beginControlFlow("if (!reachedNullOptional)", javaName);
+    data.getSerialize().beginControlFlow("if (!reachedNullOptional)");
   }
 
   private void generateSerializeNullNotAllowedError() {
