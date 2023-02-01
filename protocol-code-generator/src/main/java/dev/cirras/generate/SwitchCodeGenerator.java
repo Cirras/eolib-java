@@ -221,7 +221,7 @@ final class SwitchCodeGenerator {
 
     if (fieldData.isArray()) {
       throw new CodeGenerationError(
-          String.format("\"%s\" field referenced by switch must not be an array.", caseValue));
+          String.format("\"%s\" field referenced by switch must not be an array.", fieldName));
     }
 
     Type fieldType = fieldData.getType();
