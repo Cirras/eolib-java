@@ -21,7 +21,16 @@ public class ServerVerificationUtils {
    *   <li>If the hashes don't match, the client drops the connection.
    * </ul>
    *
-   * @param challenge the challenge value sent by the client
+   * <br>
+   * <b>Warning</b>
+   *
+   * <ul>
+   *   <li>Oversized challenges may result in negative hash values, which cannot be represented
+   *       properly in the EO protocol.
+   * </ul>
+   *
+   * @param challenge the challenge value sent by the client. Should be no larger than {@code
+   *     11,092,110}.
    * @return the hashed challenge value
    * @see InitInitClientPacket#getChallenge()
    * @see InitInitServerPacket.ReplyCodeDataOk#getChallengeResponse()
@@ -29,9 +38,7 @@ public class ServerVerificationUtils {
   public static int serverVerificationHash(int challenge) {
     ++challenge;
     return 110905
-        + (challenge % 9 + 1)
-            * Integer.remainderUnsigned(11092004 - challenge, (challenge % 11 + 1) * 119)
-            * 119
+        + (challenge % 9 + 1) * ((11092004 - challenge) % ((challenge % 11 + 1) * 119)) * 119
         + challenge % 2004;
   }
 }

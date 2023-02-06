@@ -21,7 +21,15 @@ final class ServerVerificationUtilsTest {
           Arguments.of(5, 613210),
           Arguments.of(12345, 266403),
           Arguments.of(100_000, 145554),
-          Arguments.of(EoNumericLimits.THREE_MAX - 1, 138566));
+          Arguments.of(5_000_000, 339168),
+          Arguments.of(11_092_003, 112773),
+          Arguments.of(11_092_004, 112655),
+          Arguments.of(11_092_005, 112299),
+          Arguments.of(11_092_110, 11016),
+          Arguments.of(11_092_111, -2787),
+          Arguments.of(11_111_111, 103749),
+          Arguments.of(12_345_678, -32046),
+          Arguments.of(EoNumericLimits.THREE_MAX - 1, 105960));
     }
   }
 
