@@ -77,7 +77,7 @@ final class SwitchCodeGenerator {
     ObjectCodeGenerator.FieldData fieldData = getFieldData();
     String switchValueExpression = "data." + fieldData.getJavaName();
     if (fieldData.getType() instanceof EnumType) {
-      switchValueExpression += ".asEnum()";
+      switchValueExpression += ".asInteger()";
     }
     data.getSerialize().beginControlFlow("switch ($L)", switchValueExpression);
     data.getDeserialize().beginControlFlow("switch ($L)", switchValueExpression);
@@ -109,8 +109,10 @@ final class SwitchCodeGenerator {
       caseDataName += protocolCase.getValue();
 
       String caseValueExpression = getCaseValueExpression(protocolCase);
-      data.getSerialize().add("case $L:\n", caseValueExpression).indent();
-      data.getDeserialize().add("case $L:\n", caseValueExpression).indent();
+      String comment = "// " + getCaseValueDocsExpression(protocolCase);
+
+      data.getSerialize().add("case $L: $L\n", caseValueExpression, comment).indent();
+      data.getDeserialize().add("case $L: $L\n", caseValueExpression, comment).indent();
     }
 
     ObjectCodeGenerator.Context caseContext = new ObjectCodeGenerator.Context(context);
@@ -178,7 +180,7 @@ final class SwitchCodeGenerator {
             : "Data associated with {@code "
                 + fieldData.getJavaName()
                 + "} value {@code "
-                + getCaseValueExpression(protocolCase)
+                + getCaseValueDocsExpression(protocolCase)
                 + "}.";
 
     caseDataTypeJavadoc +=
@@ -215,6 +217,17 @@ final class SwitchCodeGenerator {
     return getFieldData().getJavaName() + "Data";
   }
 
+  private String getCaseValueDocsExpression(ProtocolCase protocolCase) {
+    Type fieldType = getFieldData().getType();
+    if (fieldType instanceof EnumType) {
+      return ((EnumType) fieldType)
+          .getEnumValueByProtocolName(protocolCase.getValue())
+          .map(EnumType.EnumValue::getJavaName)
+          .orElse(String.format("UNRECOGNIZED(%s)", protocolCase.getValue()));
+    }
+    return getCaseValueExpression(protocolCase);
+  }
+
   private String getCaseValueExpression(ProtocolCase protocolCase) {
     ObjectCodeGenerator.FieldData fieldData = getFieldData();
     String caseValue = protocolCase.getValue();
@@ -235,9 +248,23 @@ final class SwitchCodeGenerator {
 
     if (fieldType instanceof EnumType) {
       EnumType enumType = (EnumType) fieldType;
-      Optional<EnumType.EnumValue> enumValue = enumType.getEnumValueByProtocolName(caseValue);
-      return enumValue
-          .map(EnumType.EnumValue::getJavaName)
+
+      Integer ordinalValue = NumberUtils.tryParseInt(caseValue);
+      if (ordinalValue != null) {
+        Optional<EnumType.EnumValue> enumValue = enumType.getEnumValueByOrdinal(ordinalValue);
+        if (enumValue.isPresent()) {
+          throw new CodeGenerationError(
+              String.format(
+                  "%s value %s must be referred to by name (\"%s\")",
+                  enumType.getName(), caseValue, enumValue.get().getProtocolName()));
+        }
+        return caseValue;
+      }
+
+      return enumType
+          .getEnumValueByProtocolName(caseValue)
+          .map(EnumType.EnumValue::getOrdinalValue)
+          .map(Object::toString)
           .orElseThrow(
               () ->
                   new CodeGenerationError(
