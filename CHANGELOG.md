@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Rename `NpcKilledState` enum to `PlayerKilledState`.
 - Improve accuracy of `serverVerificationHash` for oversized challenge values.
+- Change `AccountReplyServerPacket.replyCode` field type from `short` to `AccountReply`.
+- Change `CharacterReplyServerPacket.replyCode` field type from `short` to `CharacterReply`.
+- Treat `InitInitServerPacket.ReplyCodeDataBanned.banType` value 0 like a temporary ban.
 
 ### Fixed
 
