@@ -255,7 +255,7 @@ final class SwitchCodeGenerator {
         if (enumValue.isPresent()) {
           throw new CodeGenerationError(
               String.format(
-                  "%s value %s must be referred to by name (\"%s\")",
+                  "%s value %s must be referred to by name (%s)",
                   enumType.getName(), caseValue, enumValue.get().getProtocolName()));
         }
         return caseValue;
