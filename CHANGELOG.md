@@ -10,14 +10,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `Element` enum.
+- `PacketFamily.ERROR` enum value.
+- `PacketAction.ERROR` enum value.
+- `PacketAction.NET243` enum value.
+- `PacketAction.NET244` enum value.
+- `TalkPlayerClientPacket` packet class.
+- `TalkUseClientPacket` packet class.
+- `AttackErrorServerPacket` packet class.
+- `SpellErrorServerPacket` packet class.
+- `WarpPlayerServerPacket` packet class.
+- `WarpCreateServerPacket` packet class.
+- `WelcomePingServerPacket` packet class.
+- `WelcomePongServerPacket` packet class.
+- `WelcomeNet242ServerPacket` packet class.
+- `WelcomeNet243ServerPacket` packet class.
+- `WelcomeNet244ServerPacket` packet class.
+- `PlayersListServerPacket` packet class.
+- `PlayersReplyServerPacket` packet class.
+- `MapFile` class.
+- `PubFile` class.
+- `PlayersList` class.
+- `PlayersListFriends` class.
 
 ### Changed
 
 - Rename `ItemType.SPELL` enum value to `RESERVED5`.
+- Rename `PacketAction.NET3` enum value to `NET242`.
+- Rename `InitReply.PLAYERS` enum value to `PLAYERS_LIST`.
+- Rename `InitReply.FRIENDS_LIST_PLAYERS` enum value to `PLAYERS_LIST_FRIENDS`.
 - Change `EifRecord.element` field type from `char` to `Element`.
 - Change `EnfRecord.element` field type from `short` to `Element`.
 - Change `EnfRecord.elementWeakness` field type from `short` to `Element`.
 - Change incorrect `QuestRequirementIcon` underlying type from `char` to `short`.
+- Roll `InitInitServerPacket.ReplyCodeDataWarpMap` fields into new `mapFile` field.
+- Roll `InitInitServerPacket.ReplyCodeDataFileEmf` fields into new `mapFile` field.
+- Roll `InitInitServerPacket.ReplyCodeDataFileEif` fields into new `pubFile` field.
+- Roll `InitInitServerPacket.ReplyCodeDataFileEnf` fields into new `pubFile` field.
+- Roll `InitInitServerPacket.ReplyCodeDataFileEsf` fields into new `pubFile` field.
+- Roll `InitInitServerPacket.ReplyCodeDataFileEcf` fields into new `pubFile` field.
+- Roll `InitInitServerPacket.ReplyCodeDataMapMutation` fields into new `mapFile` field.
+- Roll `InitInitServerPacket.ReplyCodeDataPlayersList` fields into new `playersList` field.
+- Roll `InitInitServerPacket.ReplyCodeDataPlayersListFriends` fields into new `playersList` field.
 
 ## [1.0.0-RC5] - 2023-02-09
 
