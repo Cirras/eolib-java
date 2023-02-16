@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-RC6] - 2023-02-16
+
 ### Added
 
 - `Element` enum.
@@ -188,7 +190,8 @@ With this change, the `InitReply.FILE*` enum values are now `InitReply.FILE_*`.
   - Data encryption
   - Packet sequencer
 
-[Unreleased]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC5...HEAD
+[Unreleased]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC6...HEAD
+[1.0.0-RC6]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC5...v1.0.0-RC6
 [1.0.0-RC5]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC4...v1.0.0-RC5
 [1.0.0-RC4]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC3...v1.0.0-RC4
 [1.0.0-RC3]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC2...v1.0.0-RC3
