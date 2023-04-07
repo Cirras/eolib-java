@@ -64,12 +64,15 @@ final class SwitchCodeGenerator {
                 .build())
         .addMethod(
             MethodSpec.methodBuilder("set" + StringUtils.capitalize(caseDataFieldName))
+                .returns(data.getTypeName())
                 .addJavadoc("Sets data associated with the {@code $L} field.", switchFieldName)
                 .addJavadoc("\n\n")
                 .addJavadoc("@param $1L the new $1L", caseDataFieldName)
+                .addJavadoc("@return this {@code $L}", data.getTypeName().simpleName())
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(interfaceTypeName, caseDataFieldName)
                 .addStatement("this.$1L = $1L", caseDataFieldName)
+                .addStatement("return this")
                 .build());
   }
 

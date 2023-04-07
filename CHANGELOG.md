@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Switch to builder-style setters in generated data structures.
 - Rename `AdminLevel.GUIDE` enum value to `SPY`.
 - Rename `AdminLevel.GUARDIAN` enum value to `LIGHT_GUIDE`.
 - Rename `AdminLevel.GM` enum value to `GUARDIAN`.

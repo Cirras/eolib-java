@@ -277,6 +277,7 @@ class FieldCodeGenerator {
     if (hardcodedValue == null) {
       MethodSpec.Builder setter =
           MethodSpec.methodBuilder("set" + NameUtils.snakeCaseToPascalCase(name))
+              .returns(data.getTypeName())
               .addJavadoc(javadoc)
               .addModifiers(Modifier.PUBLIC)
               .addParameter(javaTypeName, javaName)
@@ -295,6 +296,8 @@ class FieldCodeGenerator {
                 arrayField ? "size()" : "length()")
             .endControlFlow();
       }
+
+      setter.addStatement("return this");
 
       data.getTypeSpec().addMethod(setter.build());
     }
