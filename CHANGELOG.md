@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `AdminLevel.GM` enum value to `GUARDIAN`.
 - Rename `AdminLevel.HGM` enum value to `GAME_MASTER`.
 - Rename `AdminLevel.RESERVED5` enum value to `HIGH_GAME_MASTER`.
+- Rename `ServerSettings.lightGuideFloodRate` field to `spyAndLightGuideFloodRate`.
+- Rename `ServerSettings.gameMasterAndHighGameMasterFloodRate` field to `gameMasterFloodRate`.
+- Rename `ServerSettings.reserved5FloodRate` field to `highGameMasterFloodRate`.
 
 ## [1.0.0-RC6] - 2023-02-16
 
