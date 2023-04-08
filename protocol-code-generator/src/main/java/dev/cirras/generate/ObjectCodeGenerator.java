@@ -221,6 +221,7 @@ final class ObjectCodeGenerator {
     if (!wasAlreadyEnabled) {
       context.setChunkedReadingEnabled(true);
       data.getDeserialize().addStatement("reader.setChunkedReadingMode(true)");
+      data.getSerialize().addStatement("writer.setStringSanitizationMode(true)");
     }
 
     protocolChunked.getInstructions().forEach(this::generateInstruction);
@@ -228,6 +229,7 @@ final class ObjectCodeGenerator {
     if (!wasAlreadyEnabled) {
       context.setChunkedReadingEnabled(false);
       data.getDeserialize().addStatement("reader.setChunkedReadingMode(false)");
+      data.getSerialize().addStatement("writer.setStringSanitizationMode(false)");
     }
   }
 
@@ -254,6 +256,16 @@ final class ObjectCodeGenerator {
               .add(methodCode)
               .build();
     }
+
+    methodCode =
+        CodeBlock.builder()
+            .addStatement("boolean oldStringSanitizationMode = writer.getStringSanitizationMode()")
+            .beginControlFlow("try")
+            .add(methodCode)
+            .nextControlFlow("finally")
+            .addStatement("writer.setStringSanitizationMode(oldStringSanitizationMode)")
+            .endControlFlow()
+            .build();
 
     return MethodSpec.methodBuilder("serialize")
         .addJavadoc(

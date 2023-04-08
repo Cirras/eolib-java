@@ -107,6 +107,54 @@ class EoWriterTest {
   }
 
   @Test
+  void testAddSanitizedString() {
+    EoWriter writer = new EoWriter();
+    writer.setStringSanitizationMode(true);
+    writer.addString("aÿz");
+    assertThat(writer.toByteArray()).containsExactly(toBytes("ayz"));
+  }
+
+  @Test
+  void testAddSanitizedFixedString() {
+    EoWriter writer = new EoWriter();
+    writer.setStringSanitizationMode(true);
+    writer.addFixedString("aÿz", 3);
+    assertThat(writer.toByteArray()).containsExactly(toBytes("ayz"));
+  }
+
+  @Test
+  void testAddSanitizedPaddedFixedString() {
+    EoWriter writer = new EoWriter();
+    writer.setStringSanitizationMode(true);
+    writer.addFixedString("aÿz", 6, true);
+    assertThat(writer.toByteArray()).containsExactly(toBytes("ayzÿÿÿ"));
+  }
+
+  @Test
+  void testAddSanitizedEncodedString() {
+    EoWriter writer = new EoWriter();
+    writer.setStringSanitizationMode(true);
+    writer.addEncodedString("aÿz");
+    assertThat(writer.toByteArray()).containsExactly(toBytes("S&l"));
+  }
+
+  @Test
+  void testAddSanitizedFixedEncodedString() {
+    EoWriter writer = new EoWriter();
+    writer.setStringSanitizationMode(true);
+    writer.addFixedEncodedString("aÿz", 3);
+    assertThat(writer.toByteArray()).containsExactly(toBytes("S&l"));
+  }
+
+  @Test
+  void testAddSanitizedPaddedFixedEncodedString() {
+    EoWriter writer = new EoWriter();
+    writer.setStringSanitizationMode(true);
+    writer.addFixedEncodedString("aÿz", 6, true);
+    assertThat(writer.toByteArray()).containsExactly(toBytes("ÿÿÿ%T>"));
+  }
+
+  @Test
   void testAddNumbersOnBoundary() {
     EoWriter writer = new EoWriter();
     assertThatCode(() -> writer.addByte(0xFF)).doesNotThrowAnyException();
@@ -146,6 +194,14 @@ class EoWriterTest {
         .isExactlyInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> writer.addFixedEncodedString("foo", 4))
         .isExactlyInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void testGetStringSanitizationMode() {
+    EoWriter writer = new EoWriter();
+    assertThat(writer.getStringSanitizationMode()).isFalse();
+    writer.setStringSanitizationMode(true);
+    assertThat(writer.getStringSanitizationMode()).isTrue();
   }
 
   @Test

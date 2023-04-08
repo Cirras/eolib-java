@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Sanitize `0xFF` bytes in strings when writing chunked data structures.
+
 ### Changed
 
 - Switch to builder-style setters in generated data structures.

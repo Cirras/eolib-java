@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 public final class EoWriter {
   private byte[] data = new byte[16];
   private int length = 0;
+  private boolean stringSanitizationMode = false;
 
   /**
    * Adds a raw byte to the writer data.
@@ -85,6 +86,7 @@ public final class EoWriter {
    */
   public void addString(String string) {
     byte[] bytes = string.getBytes(Charset.forName("windows-1252"));
+    sanitizeString(bytes);
     addBytes(bytes);
   }
 
@@ -111,6 +113,7 @@ public final class EoWriter {
   public void addFixedString(String string, int length, boolean padded) {
     checkStringLength(string, length, padded);
     byte[] bytes = string.getBytes(Charset.forName("windows-1252"));
+    sanitizeString(bytes);
     if (padded) {
       bytes = addPadding(bytes, length);
     }
@@ -124,6 +127,7 @@ public final class EoWriter {
    */
   public void addEncodedString(String string) {
     byte[] bytes = string.getBytes(Charset.forName("windows-1252"));
+    sanitizeString(bytes);
     StringEncodingUtils.encodeString(bytes);
     addBytes(bytes);
   }
@@ -151,11 +155,37 @@ public final class EoWriter {
   public void addFixedEncodedString(String string, int length, boolean padded) {
     checkStringLength(string, length, padded);
     byte[] bytes = string.getBytes(Charset.forName("windows-1252"));
+    sanitizeString(bytes);
     if (padded) {
       bytes = addPadding(bytes, length);
     }
     StringEncodingUtils.encodeString(bytes);
     addBytes(bytes);
+  }
+
+  /**
+   * Sets the string sanitization mode for the writer.
+   *
+   * <p>With string sanitization enabled, the writer will switch {@code 0xFF} bytes in strings (ÿ)
+   * to {@code 0x79} (y).
+   *
+   * @param stringSanitizationMode the new string sanitization mode
+   * @see <a href="https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md#sanitization">
+   *     Chunked Reading: Sanitization</a>
+   */
+  public void setStringSanitizationMode(boolean stringSanitizationMode) {
+    this.stringSanitizationMode = stringSanitizationMode;
+  }
+
+  /**
+   * Gets the string sanitization mode for the writer.
+   *
+   * @return true if string sanitization is enabled
+   * @see <a href="https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md#sanitization">
+   *     Chunked Reading: Sanitization</a>
+   */
+  public boolean getStringSanitizationMode() {
+    return stringSanitizationMode;
   }
 
   /**
@@ -196,6 +226,16 @@ public final class EoWriter {
     byte[] expanded = new byte[data.length * expandFactor];
     System.arraycopy(data, 0, expanded, 0, length);
     data = expanded;
+  }
+
+  private void sanitizeString(byte[] bytes) {
+    if (stringSanitizationMode) {
+      for (int i = 0; i < bytes.length; ++i) {
+        if (bytes[i] == (byte) 0xFF /* ÿ */) {
+          bytes[i] = 0x79 /* y */;
+        }
+      }
+    }
   }
 
   private static byte[] addPadding(byte[] bytes, int length) {
