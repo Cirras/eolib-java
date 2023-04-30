@@ -7,10 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Rename `ItemType.MONEY` to `CURRENCY`.
+- Rename `ItemType.BEER` to `ALCOHOL`.
+- Change `EsfRecord.element` field type from `char` to `Element`.
+- Improve javadocs on `EifRecord.spec*` fields.
+
 ### Fixed
 
 - Change incorrect `WalkCloseServerPacket` dummy value from `f` to `S`.
 - Change incorrect `WalkOpenServerPacket` dummy value from `u` to `S`.
+- Change incorrect `ByteCoords.x` field type from `short` to `byte`.
+- Change incorrect `ByteCoords.y` field type from `short` to `byte`.
 
 ## [1.0.0-RC7] - 2023-04-08
 
