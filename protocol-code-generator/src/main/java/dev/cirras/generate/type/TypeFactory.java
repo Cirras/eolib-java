@@ -92,6 +92,9 @@ public final class TypeFactory {
       case "encoded_string":
         result = new StringType(name, length);
         break;
+      case "blob":
+        result = new BlobType();
+        break;
       default:
         result = createCustomType(name, underlyingType);
         break;

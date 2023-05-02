@@ -23,6 +23,14 @@ class EoReaderTest {
   }
 
   @Test
+  void testGetBytes() {
+    EoReader reader = createReader(0x01, 0x02, 0x03, 0x04, 0x05);
+    assertThat(reader.getBytes(3)).inHexadecimal().containsExactly(0x01, 0x02, 0x03);
+    assertThat(reader.getBytes(10)).inHexadecimal().containsExactly(0x04, 0x05);
+    assertThat(reader.getBytes(1)).inHexadecimal().isEmpty();
+  }
+
+  @Test
   void testGetChar() {
     EoReader reader = createReader(0x01, 0x02, 0x80, 0x81, 0xFD, 0xFE, 0xFF);
     assertThat(reader.getChar()).isZero();

@@ -7,6 +7,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import dev.cirras.generate.type.BasicType;
+import dev.cirras.generate.type.BlobType;
 import dev.cirras.generate.type.BoolType;
 import dev.cirras.generate.type.CustomType;
 import dev.cirras.generate.type.EnumType;
@@ -506,6 +507,8 @@ class FieldCodeGenerator {
               getWriteStatementForBasicType((BasicType) type, lengthExpression, padded),
               valueExpression)
           .build();
+    } else if (type instanceof BlobType) {
+      return CodeBlock.builder().addStatement("writer.addBytes($L)", valueExpression).build();
     } else if (type instanceof StructType) {
       return CodeBlock.builder()
           .addStatement(
@@ -684,6 +687,8 @@ class FieldCodeGenerator {
       } else {
         statement.add(readBasicType);
       }
+    } else if (type instanceof BlobType) {
+      statement.add("reader.getBytes(reader.getRemaining())");
     } else if (type instanceof StructType) {
       statement.add(
           "$T.deserialize(reader)",
@@ -773,6 +778,8 @@ class FieldCodeGenerator {
       result = ClassName.get(String.class);
     } else if (type instanceof BoolType) {
       result = ClassName.get(Boolean.class);
+    } else if (type instanceof BlobType) {
+      result = TypeName.get(byte[].class);
     } else if (type instanceof CustomType) {
       result = ClassName.get(((CustomType) type).getPackageName(), type.getName());
     } else {

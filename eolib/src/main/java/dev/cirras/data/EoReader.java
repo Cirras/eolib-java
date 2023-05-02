@@ -37,6 +37,15 @@ public final class EoReader {
   }
 
   /**
+   * Reads an array of raw bytes from the input data.
+   *
+   * @return an array of raw bytes
+   */
+  public byte[] getBytes(int length) {
+    return readBytes(length);
+  }
+
+  /**
    * Reads an encoded 1-byte integer from the input data.
    *
    * @return a decoded 1-byte integer
