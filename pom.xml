@@ -4,7 +4,7 @@
 
   <groupId>dev.cirras</groupId>
   <artifactId>eolib-parent</artifactId>
-  <version>1.0.0-RC7</version>
+  <version>1.0.0-RC8</version>
   <packaging>pom</packaging>
 
   <name>EOLib :: Parent</name>
