@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `ItemType.BEER` to `ALCOHOL`.
 - Change `EsfRecord.element` field type from `char` to `Element`.
 - Improve javadocs on `EifRecord.spec*` fields.
+- Change `EmfFile.content` field type from array of `byte` to `blob`.
+- Change `PubFile.content` field type from array of `byte` to `blob`.
 
 ### Fixed
 
