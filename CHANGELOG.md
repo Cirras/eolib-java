@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Rename `SkillLearn.levelReq` field to `levelRequirement`.
+- Rename `SkillLearn.classReq` field to `classRequirement`.
+- Rename `SkillLearn.skillReq` field to `skillRequirement`.
+- Rename `CitizenRequestClientPacket.behaviourId` field to `behaviorId`.
+- Rename `CitizenAcceptClientPacket.behaviourId` field to `behaviorId`.
+- Rename `CitizenReplyClientPacket.behaviourId` field to `behaviorId`.
+- Rename `CitizenRemoveClientPacket.behaviourId` field to `behaviorId`.
+- Rename `CitizenOpenServerPacket.behaviourId` field to `behaviorId`.
+- Rename `QuestDialogServerPacket.behaviourId` field to `behaviorId`.
+- Rename `EnfRecord.behaviourId` field to `behaviorId`.
+
 ## [1.0.0-RC9] - 2023-05-13
 
 ### Added
