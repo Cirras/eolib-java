@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-RC10] - 2023-06-21
+
 ### Changed
 
 - Rename `SkillLearn.levelReq` field to `levelRequirement`.
@@ -266,7 +268,8 @@ With this change, the `InitReply.FILE*` enum values are now `InitReply.FILE_*`.
   - Data encryption
   - Packet sequencer
 
-[Unreleased]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC9...HEAD
+[Unreleased]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC10...HEAD
+[1.0.0-RC10]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC9...v1.0.0-RC10
 [1.0.0-RC9]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC8...v1.0.0-RC9
 [1.0.0-RC8]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC7...v1.0.0-RC8
 [1.0.0-RC7]: http://github.com/cirras/eolib-java/compare/v1.0.0-RC6...v1.0.0-RC7
