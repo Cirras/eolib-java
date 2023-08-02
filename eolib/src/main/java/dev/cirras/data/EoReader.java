@@ -280,7 +280,7 @@ public final class EoReader {
    */
   public int getRemaining() {
     if (chunkedReadingMode) {
-      return nextBreak - position;
+      return nextBreak - Math.min(position, nextBreak);
     } else {
       return limit - position;
     }
