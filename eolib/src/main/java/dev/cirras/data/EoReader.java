@@ -13,10 +13,12 @@ import java.nio.charset.Charset;
  */
 public final class EoReader {
   private final byte[] data;
-  private int position = 0;
-  private boolean chunkedReadingMode = false;
-  private int chunkStart = 0;
-  private int nextBreak = -1;
+  private final int offset;
+  private final int limit;
+  private int position;
+  private boolean chunkedReadingMode;
+  private int chunkStart;
+  private int nextBreak;
 
   /**
    * Creates a new {@code EoReader} instance for the specified data.
@@ -24,7 +26,86 @@ public final class EoReader {
    * @param data the byte array containing the input data
    */
   public EoReader(byte[] data) {
+    this(data, 0, data.length);
+  }
+
+  private EoReader(byte[] data, int offset, int limit) {
     this.data = data;
+    this.offset = offset;
+    this.limit = limit;
+    this.position = 0;
+    this.chunkedReadingMode = false;
+    this.chunkStart = 0;
+    this.nextBreak = -1;
+  }
+
+  /**
+   * Creates a new {@code EoReader} whose input data is a shared subsequence of this reader's data.
+   *
+   * <p>The input data of the new reader will start at this reader's current position and contain
+   * all remaining data. The two reader's position and chunked reading mode will be independent.
+   *
+   * <p>The new reader's position will be zero, and its chunked reading mode will be false.
+   *
+   * @return the new reader
+   */
+  public EoReader slice() {
+    return slice(position);
+  }
+
+  /**
+   * Creates a new {@code EoReader} whose input data is a shared subsequence of this reader's data.
+   *
+   * <p>The input data of the new reader will start at position {@code index} in this reader and
+   * contain all remaining data. The two reader's position and chunked reading mode will be
+   * independent.
+   *
+   * <p>The new reader's position will be zero, and its chunked reading mode will be false.
+   *
+   * @param index the position in this reader at which the data of the new reader will start; must
+   *     be non-negative.
+   * @throws IndexOutOfBoundsException if {@code index} is negative. <br>
+   *     This exception will <b>not</b> be thrown if {@code index} is greater than the size of the
+   *     input data. Consistent with the existing over-read behaviors, an empty reader will be
+   *     returned.
+   * @return the new reader
+   */
+  public EoReader slice(int index) {
+    return slice(index, Math.max(0, limit - index));
+  }
+
+  /**
+   * Creates a new {@code EoReader} whose input data is a shared subsequence of this reader's data.
+   *
+   * <p>The input data of the new reader will start at position {@code index} in this reader and
+   * contain all remaining data. The two reader's position and chunked reading mode will be
+   * independent.
+   *
+   * <p>The new reader's position will be zero, and its chunked reading mode will be false.
+   *
+   * @param index the position in this reader at which the data of the new reader will start; must
+   *     be non-negative.
+   * @param length the length of the shared subsequence of data to supply to the new reader; must be
+   *     non-negative.
+   * @throws IndexOutOfBoundsException if {@code index} or {@code length} is negative. <br>
+   *     This exception will <b>not</b> be thrown if {@code index + length} is greater than the size
+   *     of the input data. Consistent with the existing over-read behaviors, the new reader will be
+   *     supplied a shared subsequence of all remaining data starting from {@code index}.
+   * @return the new reader
+   */
+  public EoReader slice(int index, int length) {
+    if (index < 0) {
+      throw new IndexOutOfBoundsException("negative index: " + index);
+    }
+
+    if (length < 0) {
+      throw new IndexOutOfBoundsException("negative length: " + length);
+    }
+
+    int sliceOffset = Math.max(0, Math.min(limit, index));
+    int sliceLimit = Math.min(limit - sliceOffset, length);
+
+    return new EoReader(data, sliceOffset, sliceLimit);
   }
 
   /**
@@ -201,7 +282,7 @@ public final class EoReader {
     if (chunkedReadingMode) {
       return nextBreak - position;
     } else {
-      return data.length - position;
+      return limit - position;
     }
   }
 
@@ -216,7 +297,7 @@ public final class EoReader {
     }
 
     position = nextBreak;
-    if (position < data.length) {
+    if (position < limit) {
       // Skip the break byte
       ++position;
     }
@@ -236,7 +317,7 @@ public final class EoReader {
 
   private byte readByte() {
     if (getRemaining() > 0) {
-      return data[position++];
+      return data[offset + position++];
     }
     return 0;
   }
@@ -245,7 +326,7 @@ public final class EoReader {
     length = Math.min(length, getRemaining());
 
     byte[] result = new byte[length];
-    System.arraycopy(data, position, result, 0, length);
+    System.arraycopy(data, offset + position, result, 0, length);
 
     position += length;
 
@@ -265,8 +346,8 @@ public final class EoReader {
 
   private int findNextBreakIndex() {
     int i;
-    for (i = chunkStart; i < data.length; ++i) {
-      if (data[i] == (byte) 0xFF) {
+    for (i = chunkStart; i < limit; ++i) {
+      if (data[offset + i] == (byte) 0xFF) {
         break;
       }
     }

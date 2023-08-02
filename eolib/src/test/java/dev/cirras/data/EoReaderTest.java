@@ -9,6 +9,53 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class EoReaderTest {
+  @Test
+  void testSlice() {
+    EoReader reader = createReader(0x01, 0x02, 0x03, 0x04, 0x05, 0x06);
+    reader.getByte();
+    reader.setChunkedReadingMode(true);
+
+    EoReader reader2 = reader.slice();
+    assertThat(reader2.getPosition()).isZero();
+    assertThat(reader2.getRemaining()).isEqualTo(5);
+    assertThat(reader2.getChunkedReadingMode()).isFalse();
+
+    EoReader reader3 = reader2.slice(1);
+    assertThat(reader3.getPosition()).isZero();
+    assertThat(reader3.getRemaining()).isEqualTo(4);
+    assertThat(reader3.getChunkedReadingMode()).isFalse();
+
+    EoReader reader4 = reader3.slice(1, 2);
+    assertThat(reader4.getPosition()).isZero();
+    assertThat(reader4.getRemaining()).isEqualTo(2);
+    assertThat(reader4.getChunkedReadingMode()).isFalse();
+
+    assertThat(reader.getPosition()).isEqualTo(1);
+    assertThat(reader.getRemaining()).isEqualTo(5);
+    assertThat(reader.getChunkedReadingMode()).isTrue();
+  }
+
+  @Test
+  void testSliceOverRead() {
+    EoReader reader = createReader(0x01, 0x02, 0x03);
+    assertThat(reader.slice(2, 5).getRemaining()).isEqualTo(1);
+    assertThat(reader.slice(3).getRemaining()).isZero();
+    assertThat(reader.slice(4).getRemaining()).isZero();
+    assertThat(reader.slice(4, 12345).getRemaining()).isZero();
+  }
+
+  @Test
+  void testSliceNegativeIndex() {
+    EoReader reader = createReader(0x01, 0x02, 0x03);
+    assertThatThrownBy(() -> reader.slice(-1)).isInstanceOf(IndexOutOfBoundsException.class);
+  }
+
+  @Test
+  void testSliceNegativeLength() {
+    EoReader reader = createReader(0x01, 0x02, 0x03);
+    assertThatThrownBy(() -> reader.slice(0, -1)).isInstanceOf(IndexOutOfBoundsException.class);
+  }
+
   @ParameterizedTest(name = "getByte() should return {0}")
   @ValueSource(ints = {0x00, 0x01, 0x02, 0x80, 0xFD, 0xFE, 0xFF})
   void testGetByte(int byteValue) {
@@ -318,10 +365,10 @@ class EoReaderTest {
   }
 
   private static EoReader createReader(int... bytes) {
-    byte[] data = new byte[bytes.length];
-    for (int i = 0; i < data.length; ++i) {
-      data[i] = (byte) bytes[i];
+    byte[] data = new byte[bytes.length + 20];
+    for (int i = 0; i < bytes.length; ++i) {
+      data[10 + i] = (byte) bytes[i];
     }
-    return new EoReader(data);
+    return new EoReader(data).slice(10, bytes.length);
   }
 }
