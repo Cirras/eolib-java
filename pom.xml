@@ -121,6 +121,11 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
+        <!--
+          Note: Do not upgrade this plugin unless the following issues are fixed:
+          https://github.com/mojohaus/flatten-maven-plugin/issues/352
+          https://github.com/mojohaus/flatten-maven-plugin/issues/377
+        -->
         <version>1.3.0</version>
         <configuration>
           <outputDirectory>${project.build.directory}</outputDirectory>
