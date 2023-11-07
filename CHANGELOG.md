@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `BankAddClientPacket.sessionId` field.
+- `BankTakeClientPacket.sessionId` field.
+
 ## [1.0.0-RC11] - 2023-08-05
 
 ### Added
