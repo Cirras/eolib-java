@@ -123,7 +123,7 @@ public final class EoWriter {
   /**
    * Adds an encoded string to the writer data.
    *
-   * @param string the string to encoded and added
+   * @param string the string to be encoded and added
    */
   public void addEncodedString(String string) {
     byte[] bytes = string.getBytes(Charset.forName("windows-1252"));
